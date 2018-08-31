@@ -35,3 +35,23 @@ go_executable {
     },
     output = "@urd",
 }
+
+genrule {
+    name = "ur-test-cucumber",
+    inputs = {
+        ":cucumber",
+        ":ur-exe-urd",
+        "+ur/features/rules.feature",
+        "+ur/features/step_definitions/rules.rb",
+        "+ur/features/support/env.rb",
+        "+ur/features/support/hooks.rb",
+        "+ur/testdata/examplerules.txt",
+        "+ur/testdata/norules.txt",
+    },
+    outputs = { },
+    command = [[
+        export PATH="$PATH:$(loc :cucumber bin):$(loc :ur-exe-urd)"
+        cd "$(dirname "$(loc +ur/features/rules.feature)")/.."
+        cucumber
+    ]],
+}

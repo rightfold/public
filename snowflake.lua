@@ -8,6 +8,7 @@ nixpkgs [[
         import tarball {}
 ]]
 
+require "support/cucumber"
 require "support/go"
 
 require "ur/build"
