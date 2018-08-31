@@ -10,6 +10,7 @@ go_package {
     imports = { },
     sources = {
         "+ur/src/rules/apply.go",
+        "+ur/src/rules/parse.go",
         "+ur/src/rules/rule.go",
     },
     output = "@ur/rules.a",

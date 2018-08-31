@@ -3,16 +3,18 @@ package main
 import (
 	"log"
 	"net/http"
-	"regexp"
+	"os"
 	"ur/redirect"
 	"ur/rules"
 )
 
 func main() {
-	rules := []rules.Rule{
-		{regexp.MustCompile(`^/com/(\d+)$`), "https://example.com/$1"},
-		{regexp.MustCompile(`^/org/(\d+)$`), "https://example.org/$1"},
+	if len(os.Args) != 2 {
+		log.Fatal("usage: urd rules.txt")
 	}
+
+	rules, err := rules.ParseFile(os.Args[1])
+	if err != nil { log.Fatal(err) }
 
 	handler := redirect.Redirect{rules}
 
@@ -21,6 +23,6 @@ func main() {
 		Handler: &handler,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	log.Fatal(err)
 }

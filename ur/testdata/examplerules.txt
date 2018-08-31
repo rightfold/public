@@ -1,0 +1,2 @@
+^/com/(\d+)$ https://example.com/$1
+^/org/(\d+)$ https://example.org/$1
