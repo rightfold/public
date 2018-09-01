@@ -17,6 +17,13 @@ go_package {
 }
 
 go_package {
+    name = "ur-lib-shorts",
+    imports = { },
+    sources = { "+ur/src/shorts/database.go" },
+    output = "@ur/shorts.a",
+}
+
+go_package {
     name = "ur-lib-urd",
     imports = {
         ":ur-lib-redirect",
