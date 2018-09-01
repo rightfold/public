@@ -13,7 +13,7 @@ type Redirect struct {
 func (r *Redirect) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	target, ok := rules.Apply(r.Rules, req.URL.Path)
 	if !ok {
-		res.WriteHeader(http.StatusNotFound)
+		http.NotFound(res, req)
 	} else {
 		http.Redirect(res, req, target, http.StatusFound)
 	}
