@@ -38,6 +38,17 @@ local function cxx_object(rule)
 end
 
 cxx_object {
+    name = "klok-lib-apps-tally",
+    source = "+klok/src/apps/tally.cpp",
+    includes = {
+        "+klok/src/apps/tally.hpp",
+        "+klok/src/core/screen.hpp",
+        "+klok/src/core/ui.hpp",
+    },
+    output = "@tally.o",
+}
+
+cxx_object {
     name = "klok-lib-core-screen",
     source = "+klok/src/core/screen.cpp",
     includes = {
