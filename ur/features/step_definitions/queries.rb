@@ -1,5 +1,5 @@
 Given(/^the rule set defined in "([^"]*)"$/) do |rules_path|
-    @pid = spawn('urd', rules_path, 'testdata/noshorts.json')
+    @pid = spawn('urd', rules_path, 'testdata/noshorts.txt')
     sleep 0.01
 end
 

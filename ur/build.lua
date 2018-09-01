@@ -1,4 +1,11 @@
 go_package {
+    name = "ur-lib-encoding-mapping",
+    imports = { },
+    sources = { "+ur/src/encoding/mapping/mapping.go" },
+    output = "@ur/encoding/mapping.a",
+}
+
+go_package {
     name = "ur-lib-redirect",
     imports = {
         ":ur-lib-rules",
@@ -10,7 +17,7 @@ go_package {
 
 go_package {
     name = "ur-lib-rules",
-    imports = { },
+    imports = { ":ur-lib-encoding-mapping" },
     sources = {
         "+ur/src/rules/apply.go",
         "+ur/src/rules/parse.go",
@@ -21,7 +28,7 @@ go_package {
 
 go_package {
     name = "ur-lib-shorts",
-    imports = { },
+    imports = { ":ur-lib-encoding-mapping" },
     sources = { "+ur/src/shorts/database.go" },
     output = "@ur/shorts.a",
 }
@@ -41,6 +48,7 @@ go_executable {
     name = "ur-exe-urd",
     main = ":ur-lib-urd ur/urd.a",
     imports = {
+        ":ur-lib-encoding-mapping",
         ":ur-lib-redirect",
         ":ur-lib-rules",
         ":ur-lib-shorts",
@@ -59,9 +67,9 @@ genrule {
         "+ur/features/support/env.rb",
         "+ur/features/support/hooks.rb",
         "+ur/testdata/examplerules.txt",
-        "+ur/testdata/exampleshorts.json",
+        "+ur/testdata/exampleshorts.txt",
         "+ur/testdata/norules.txt",
-        "+ur/testdata/noshorts.json",
+        "+ur/testdata/noshorts.txt",
     },
     outputs = { },
     command = [[
