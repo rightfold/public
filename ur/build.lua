@@ -1,6 +1,9 @@
 go_package {
     name = "ur-lib-redirect",
-    imports = { ":ur-lib-rules" },
+    imports = {
+        ":ur-lib-rules",
+        ":ur-lib-shorts",
+    },
     sources = { "+ur/src/redirect/redirect.go" },
     output = "@ur/redirect.a",
 }
@@ -28,6 +31,7 @@ go_package {
     imports = {
         ":ur-lib-redirect",
         ":ur-lib-rules",
+        ":ur-lib-shorts",
     },
     sources = { "+ur/src/urd/main.go" },
     output = "@ur/urd.a",
@@ -39,6 +43,7 @@ go_executable {
     imports = {
         ":ur-lib-redirect",
         ":ur-lib-rules",
+        ":ur-lib-shorts",
     },
     output = "@urd",
 }
