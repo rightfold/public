@@ -8,7 +8,9 @@ nixpkgs [[
         import tarball {}
 ]]
 
+require "support/avr-gcc"
 require "support/cucumber"
 require "support/go"
 
+require "klok/build"
 require "ur/build"
