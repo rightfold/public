@@ -9,8 +9,13 @@ nixpkgs [[
 ]]
 
 require "support/avr-gcc"
+require "support/binutils"
 require "support/cucumber"
+require "support/gcc"
 require "support/go"
+require "support/make"
+require "support/verilator"
 
+require "cpu/build"
 require "klok/build"
 require "ur/build"

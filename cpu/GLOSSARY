@@ -1,0 +1,26 @@
+clk
+
+    The clock, an oscillator. Whenever the clock switches from low to high, the
+    CPU advances to the next state.
+
+pc
+
+    The program counter is the index (in bits) of the instruction to decode and
+    interpret. The program counter is modified by every instruction, except for
+    jump instructions that jump to themselves.
+
+opcode
+
+    The opcode is part of an instruction, and defines which functionality to
+    perform. The opcode is scrutinized in a large case statement, each branch
+    of which contains some code to implement the opcode and interpret the
+    instructions that start with that opcode.
+
+regop
+
+    A register operand of an instruction, specifying which register is to be
+    read or written by the instruction.
+
+immop
+
+    An immediate operand of an instruction, which is a literal number.
