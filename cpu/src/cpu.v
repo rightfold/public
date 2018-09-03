@@ -67,7 +67,7 @@ module cpu_cpu(clk, reset, code, out);
 
         cpu_inst_opcode_sub : begin
             regs[regop1] = regs[regop1] - regs[regop2];
-            zero_flag    = regs[regop1] + regs[regop2] == 0;
+            zero_flag    = regs[regop1] - regs[regop2] == 0;
             pc <= pc + cpu_inst_sz_sub;
         end
 
