@@ -16,7 +16,9 @@ module cpu_decoder(code, pc, opcode, regop1, regop2, immop1);
         opcode == cpu_inst_opcode_imm ? code[pc + opsz +: rgsz] :
         opcode == cpu_inst_opcode_out ? code[pc + opsz +: rgsz] :
         opcode == cpu_inst_opcode_imp ? code[pc + opsz +: rgsz] :
-        opcode == cpu_inst_opcode_iz  ? code[pc + opsz +: rgsz] :
+        opcode == cpu_inst_opcode_ilt ? code[pc + opsz +: rgsz] :
+        opcode == cpu_inst_opcode_ieq ? code[pc + opsz +: rgsz] :
+        opcode == cpu_inst_opcode_igt ? code[pc + opsz +: rgsz] :
         opcode == cpu_inst_opcode_inc ? code[pc + opsz +: rgsz] :
         opcode == cpu_inst_opcode_dec ? code[pc + opsz +: rgsz] :
         opcode == cpu_inst_opcode_add ? code[pc + opsz +: rgsz] :
@@ -41,6 +43,8 @@ module cpu_decoder(code, pc, opcode, regop1, regop2, immop1);
     assign immop1 =
         opcode == cpu_inst_opcode_imm ? code[pc + opsz + rgsz +: imsz] :
         opcode == cpu_inst_opcode_jmp ? code[pc + opsz        +: imsz] :
-        opcode == cpu_inst_opcode_jz  ? code[pc + opsz        +: imsz] :
+        opcode == cpu_inst_opcode_jlt ? code[pc + opsz        +: imsz] :
+        opcode == cpu_inst_opcode_jeq ? code[pc + opsz        +: imsz] :
+        opcode == cpu_inst_opcode_jgt ? code[pc + opsz        +: imsz] :
         'x;
 endmodule
