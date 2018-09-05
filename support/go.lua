@@ -1,4 +1,15 @@
-nixrule { name = "go", nixexpr = "nixpkgs.go" }
+nixrule {
+    name = "go",
+    nixexpr = [[
+        nixpkgs.go.override {
+            # We do not use go get, so we do not need these dependencies.
+            git        = "/bin";
+            bazaar     = "/bin";
+            subversion = "/bin";
+            mercurial  = "/bin";
+        }
+    ]],
+}
 
 function go_package(rule)
     local inputs = { ":go" }
