@@ -21,3 +21,29 @@ require "cpu/build"
 require "klok/build"
 require "pn/build"
 require "ur/build"
+
+do
+    local inputs = {
+        ":perl",
+        ":pn-test-ticket",
+    }
+
+    local tests = { }
+    for i, input in ipairs(inputs) do
+        if i > 1 then
+            table.insert(tests, [["$(loc ]] .. input .. [[ tap)"]])
+        end
+    end
+
+    local command = [[
+        export PATH="$PATH:$(loc :perl bin)"
+        prove -e cat ]] .. table.concat(tests, " ") .. [[
+    ]]
+
+    genrule {
+        name = "test",
+        inputs = inputs,
+        outputs = { },
+        command = command,
+    }
+end
