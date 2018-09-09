@@ -13,19 +13,19 @@ pub fn positionedlike<f, a, b>(old: positioned<a>, new: f) -> positioned<b>
     positioned{node: new(old), line: line}
 }
 
-pub fn read<l>(l: &mut l) -> Result<token, error<l>>
+pub fn read<l>(l: &mut l) -> Result<token, error<l::error>>
     where l: lexer
 {
     l.read().map_err(error::lex)
 }
 
-pub fn peek<l>(l: &l) -> Result<token, error<l>>
+pub fn peek<l>(l: &l) -> Result<token, error<l::error>>
     where l: lexer
 {
     l.peek().map_err(error::lex)
 }
 
-pub fn expect<l>(l: &mut l, payload: payload) -> Result<u64, error<l>>
+pub fn expect<l>(l: &mut l, payload: payload) -> Result<u64, error<l::error>>
     where l: lexer
 {
     let token = read(l)?;
@@ -39,7 +39,7 @@ pub fn expect<l>(l: &mut l, payload: payload) -> Result<u64, error<l>>
     }
 }
 
-pub fn expectidentifier<l>(l: &mut l) -> Result<(Rc<str>, u64), error<l>>
+pub fn expectidentifier<l>(l: &mut l) -> Result<(Rc<str>, u64), error<l::error>>
     where l: lexer
 {
     let token = read(l)?;

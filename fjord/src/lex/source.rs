@@ -1,7 +1,7 @@
 use fjordtoken::payload;
 use fjordtoken::token;
 use lexer;
-use std::fmt;
+use std;
 use std::rc::Rc;
 
 #[derive(Clone, Debug)]
@@ -157,14 +157,22 @@ impl<'a> sourcelexer<'a>
     }
 }
 
-impl fmt::Display for error
+impl std::fmt::Display for error
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
         match self
         {
             &error::unexpectedchar(None) => write!(f, "unexpected end of file"),
             &error::unexpectedchar(Some(c)) => write!(f, "unexpected `{}'", c),
         }
+    }
+}
+
+impl std::error::Error for error
+{
+    fn description(&self) -> &str
+    {
+        "description() is deprecated; use Display"
     }
 }

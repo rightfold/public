@@ -9,13 +9,13 @@ use util::peek;
 use util::positionedlike;
 use util::read;
 
-pub fn parsevalexpr<l>(l: &mut l) -> Result<positioned<valexpr>, error<l>>
+pub fn parsevalexpr<l>(l: &mut l) -> Result<positioned<valexpr>, error<l::error>>
     where l: lexer
 {
     parselevel2(l)
 }
 
-pub fn parselevel2<l>(l: &mut l) -> Result<positioned<valexpr>, error<l>>
+pub fn parselevel2<l>(l: &mut l) -> Result<positioned<valexpr>, error<l::error>>
     where l: lexer
 {
     let mut left = parselevel1(l)?;
@@ -41,7 +41,7 @@ pub fn parselevel2<l>(l: &mut l) -> Result<positioned<valexpr>, error<l>>
     Ok(left)
 }
 
-pub fn parselevel1<l>(l: &mut l) -> Result<positioned<valexpr>, error<l>>
+pub fn parselevel1<l>(l: &mut l) -> Result<positioned<valexpr>, error<l::error>>
     where l: lexer
 {
     // TODO: Report the possible token types in the default match case.

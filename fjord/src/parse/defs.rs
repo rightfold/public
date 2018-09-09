@@ -9,7 +9,7 @@ use util::expect;
 use util::expectidentifier;
 use valexprs::parsevalexpr;
 
-pub fn parsedef<l>(l: &mut l) -> Result<positioned<def>, error<l>>
+pub fn parsedef<l>(l: &mut l) -> Result<positioned<def>, error<l::error>>
     where l: lexer
 {
     // Parse the def keyword and the name of the definition.

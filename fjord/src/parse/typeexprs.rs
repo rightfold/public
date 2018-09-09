@@ -10,13 +10,13 @@ use util::peek;
 use util::positionedlike;
 use util::read;
 
-pub fn parsetypeexpr<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l>>
+pub fn parsetypeexpr<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l::error>>
     where l: lexer
 {
     parselevel2(l)
 }
 
-pub fn parselevel2<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l>>
+pub fn parselevel2<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l::error>>
     where l: lexer
 {
     // Parse the left hand side of a function type arrow, or the type
@@ -62,7 +62,7 @@ pub fn parselevel2<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l>>
     }
 }
 
-pub fn parselevel1<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l>>
+pub fn parselevel1<l>(l: &mut l) -> Result<positioned<typeexpr>, error<l::error>>
     where l: lexer
 {
     // TODO: Match on the token and report the possible token types in the

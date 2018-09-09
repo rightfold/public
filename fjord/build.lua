@@ -48,3 +48,18 @@ rust_rlib {
     },
     output = "@libfjordparse.rlib",
 }
+
+rust_executable {
+    name = "fjord-exe-fjordc",
+    crate = "fjordc",
+    flags = RUSTC_FLAGS,
+    root_source = "+fjord/src/fjordc.rs",
+    extra_sources = { },
+    externs = {
+        fjordast = ":fjord-lib-ast libfjordast.rlib",
+        fjordlex = ":fjord-lib-lex libfjordlex.rlib",
+        fjordtoken = ":fjord-lib-token libfjordtoken.rlib",
+        fjordparse = ":fjord-lib-parse libfjordparse.rlib",
+    },
+    output = "@fjordc",
+}
