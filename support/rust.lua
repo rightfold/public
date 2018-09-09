@@ -23,11 +23,11 @@ local function rust_crate(rule)
         table.insert(args, name .. [[="$(loc ]] .. extern .. [[)"]])
     end
 
-    table.insert(inputs, rule.root_source)
-    table.insert(args, [["$(loc ]] .. rule.root_source .. [[)"]])
+    table.insert(inputs, rule.source)
+    table.insert(args, [["$(loc ]] .. rule.source .. [[)"]])
 
-    for _, source in ipairs(rule.extra_sources) do
-        table.insert(inputs, source)
+    for _, input in ipairs(rule.inputs) do
+        table.insert(inputs, input)
     end
 
     genrule {
@@ -47,8 +47,8 @@ function rust_rlib(rule)
         crate = rule.crate,
         crate_type = "rlib",
         flags = rule.flags,
-        root_source = rule.root_source,
-        extra_sources = rule.extra_sources,
+        source = rule.source,
+        inputs = rule.inputs,
         externs = rule.externs,
         output = rule.output,
     }
@@ -60,8 +60,8 @@ function rust_executable(rule)
         crate = rule.crate,
         crate_type = "bin",
         flags = rule.flags,
-        root_source = rule.root_source,
-        extra_sources = rule.extra_sources,
+        source = rule.source,
+        inputs = rule.inputs,
         externs = rule.externs,
         output = rule.output,
     }
