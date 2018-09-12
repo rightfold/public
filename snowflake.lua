@@ -22,6 +22,7 @@ require "support/verilator"
 require "cpu/build"
 require "fjord/build"
 require "klok/build"
+require "krokodil/build"
 require "pn/build"
 require "ur/build"
 
