@@ -60,7 +60,7 @@ haskell_module {
 }
 
 haskell_module {
-    name = "Krokodil.Html",
+    name = "Data.Html.Escape",
     imports = { },
 }
 
@@ -72,8 +72,8 @@ haskell_module {
 haskell_module {
     name = "Krokodil.Article.DisplayArticle",
     imports = {
+         "Data.Html.Escape",
          "Krokodil.Article",
-         "Krokodil.Html",
     },
 }
 

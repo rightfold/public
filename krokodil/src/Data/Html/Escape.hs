@@ -1,6 +1,6 @@
 -- |
--- HTML-related utilities.
-module Krokodil.Html
+-- Escaping of text for inclusion in HTML.
+module Data.Html.Escape
   ( -- * Escaping
     escapeHtml
   , escapeHtmlChar

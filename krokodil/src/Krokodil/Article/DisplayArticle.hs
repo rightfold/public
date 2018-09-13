@@ -9,13 +9,13 @@ module Krokodil.Article.DisplayArticle
   ) where
 
 import Data.Foldable (fold)
+import Data.Html.Escape (escapeHtml)
 import Data.Semigroup ((<>))
 
 import qualified Data.ByteString.Builder as Bb
 import qualified Data.ByteString.Lazy as Lbs
 
 import Krokodil.Article (ArticleBody (..), ArticleBodyFont (..), ArticleTitle (..))
-import Krokodil.Html (escapeHtml)
 
 -- |
 -- The element for an article.
