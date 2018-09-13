@@ -12,7 +12,8 @@ import Data.Semigroup (Semigroup, (<>))
 -- Like 'Either', but accumulate errors.
 newtype Validation a b =
   Validation (Either a b)
-  deriving newtype (Functor)
+  deriving stock (Eq, Ord, Show, Read)
+  deriving newtype (Foldable, Functor)
 
 instance Semigroup a => Applicative (Validation a) where
   pure = valid

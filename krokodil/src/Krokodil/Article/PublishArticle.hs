@@ -25,6 +25,7 @@ data ValidationError
   = EmptyTitle
   | EmptyBodyText
   | UnknownBodyFont
+  deriving stock (Bounded, Enum, Eq, Ord, Show)
 
 validateArticle :: Bs.ByteString -> Bs.ByteString -> Bs.ByteString
                 -> Validation (ArticleTitle, ArticleBody)
