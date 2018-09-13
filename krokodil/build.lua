@@ -11,6 +11,8 @@ local function haskell_module(rule)
     local outputs = { }
     local args = { }
 
+    table.insert(args, [[-XDerivingStrategies]])
+    table.insert(args, [[-XGeneralizedNewtypeDeriving]])
     table.insert(args, [[-XOverloadedStrings]])
 
     table.insert(args, [[-Wall]])
@@ -53,6 +55,11 @@ local function haskell_module(rule)
 end
 
 haskell_module {
+    name = "Data.Validation",
+    imports = { },
+}
+
+haskell_module {
     name = "Krokodil.Html",
     imports = { },
 }
@@ -69,3 +76,12 @@ haskell_module {
          "Krokodil.Html",
     },
 }
+
+haskell_module {
+    name = "Krokodil.Article.PublishArticle",
+    imports = {
+         "Data.Validation",
+         "Krokodil.Article",
+    },
+}
+
