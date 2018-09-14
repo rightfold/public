@@ -11,8 +11,12 @@ local function haskell_module(rule)
     local outputs = { }
     local args = { }
 
+    table.insert(args, [[-XDeriveFunctor]])
     table.insert(args, [[-XDerivingStrategies]])
+    table.insert(args, [[-XFlexibleContexts]])
+    table.insert(args, [[-XFunctionalDependencies]])
     table.insert(args, [[-XGeneralizedNewtypeDeriving]])
+    table.insert(args, [[-XMultiParamTypeClasses]])
     table.insert(args, [[-XOverloadedStrings]])
 
     table.insert(args, [[-Wall]])
@@ -55,12 +59,17 @@ local function haskell_module(rule)
 end
 
 haskell_module {
-    name = "Data.Validation",
+    name = "Control.Monad.Free",
     imports = { },
 }
 
 haskell_module {
     name = "Data.Html.Escape",
+    imports = { },
+}
+
+haskell_module {
+    name = "Data.Validation",
     imports = { },
 }
 
@@ -73,6 +82,14 @@ haskell_module {
     name = "Krokodil.Article.DisplayArticle",
     imports = {
          "Data.Html.Escape",
+         "Krokodil.Article",
+    },
+}
+
+haskell_module {
+    name = "Krokodil.Article.PublishArticle.DSL",
+    imports = {
+         "Control.Monad.Free",
          "Krokodil.Article",
     },
 }
