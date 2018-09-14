@@ -1,6 +1,6 @@
 -- |
--- Implementation for the /Publish article/ use case.
-module Krokodil.Article.PublishArticle
+-- Implementation of the validation aspect of the /Publish article/ use case.
+module Krokodil.Article.PublishArticle.Validation
   ( Validation
   , ValidationError (..)
   , validateArticle

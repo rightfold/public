@@ -78,10 +78,9 @@ haskell_module {
 }
 
 haskell_module {
-    name = "Krokodil.Article.PublishArticle",
+    name = "Krokodil.Article.PublishArticle.Validation",
     imports = {
          "Data.Validation",
          "Krokodil.Article",
     },
 }
-
