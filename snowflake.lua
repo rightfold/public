@@ -10,27 +10,18 @@ nixpkgs [[
 
 require "support/avr-gcc"
 require "support/binutils"
-require "support/cucumber"
 require "support/gcc"
-require "support/go"
-require "support/llvm"
 require "support/make"
 require "support/perl"
-require "support/rust"
 require "support/verilator"
 
 require "cpu/build"
-require "fjord/build"
 require "granite/build"
 require "klok/build"
-require "krokodil/build"
-require "pn/build"
-require "ur/build"
 
 do
     local inputs = {
         ":perl",
-        ":pn-test-ticket",
     }
 
     local tests = { }

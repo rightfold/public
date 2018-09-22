@@ -1,4 +1,0 @@
-def square
-    sig f32 -> f32
-    val fun x -> mul x x
-end
