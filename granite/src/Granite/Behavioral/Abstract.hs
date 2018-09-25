@@ -26,7 +26,7 @@ data Expression u =
 
 data ExpressionPayload :: Nat -> * where
   VariableExpression :: Name -> ExpressionPayload u
-  ApplicationExpression :: ExpressionPayload u -> ExpressionPayload u -> ExpressionPayload u
-  LambdaExpression :: Name -> ExpressionPayload 0 -> ExpressionPayload 0
+  ApplicationExpression :: Expression u -> Expression u -> ExpressionPayload u
+  LambdaExpression :: Name -> Expression 0 -> ExpressionPayload 0
 deriving stock instance Eq (ExpressionPayload u)
 deriving stock instance Show (ExpressionPayload u)
