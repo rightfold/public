@@ -19,5 +19,17 @@ data Definition =
   deriving stock (Eq, Show)
 
 data DefinitionPayload
-  = ValueDefinition Name (Expression 1) (Expression 0)
+  -- |
+  -- The type and the value are both optional. When the definition is scanned
+  -- as an interface, the definition is skipped when the type is absent.
+  -- Likewise, when the definition is scanned as an implementation, the
+  -- definition is skipped when the value is absent.
+  --
+  -- The same name may be defined twice, once with only a definition and once
+  -- with only an implementation. This allows for the interface and
+  -- implementation to be defined in separate source files.
+  --
+  -- Note that for the program to properly compile and link, if the value is
+  -- used then both the type and the value must be given eventually.
+  = ValueDefinition Name (Maybe (Expression 1)) (Maybe (Expression 0))
   deriving stock (Eq, Show)
