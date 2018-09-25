@@ -1,0 +1,17 @@
+The source code of the compiler is organized in three main directories:
+
+    src/Granite/Common
+
+        This directory contains modules used throughout the compiler: names,
+        source positions, etc.
+
+    src/Granite/Behavioral
+
+        This directory contains modules pertaining the behavioral aspect of
+        the programming language: System Fω with row polymorphism.
+
+    src/Granite/Organizational
+
+        This directory contains modules pertaining the organizational aspect of
+        the programming language: source files, top-level definitions, and
+        interfaces.

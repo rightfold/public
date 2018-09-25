@@ -1,4 +1,4 @@
-module Granite.Name
+module Granite.Common.Name
   ( Name (..)
   ) where
 

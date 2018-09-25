@@ -1,25 +1,14 @@
-module Granite.Source
-  ( Definition (..), DefinitionPayload (..)
-  , Expression (..), ExpressionPayload (..)
+-- |
+-- Behavioral abstract syntax tree.
+module Granite.Behavioral.Abstract
+  ( Expression (..)
+  , ExpressionPayload (..)
   ) where
 
 import GHC.TypeLits (Nat)
 
-import Granite.Name (Name)
-import Granite.Position (Position)
-
--- |
--- A definition is a top-level definition. A source file is a list of
--- definitions.
-data Definition =
-  Definition
-    { definitionPosition :: Position
-    , definitionPayload  :: DefinitionPayload }
-  deriving stock (Eq, Show)
-
-data DefinitionPayload
-  = ValueDefinition Name (Expression 1) (Expression 0)
-  deriving stock (Eq, Show)
+import Granite.Common.Name (Name)
+import Granite.Common.Position (Position)
 
 -- |
 -- The 'Expression' type is used for expressions at any universe: values,

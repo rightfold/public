@@ -1,4 +1,4 @@
-module Granite.Position
+module Granite.Common.Position
   ( Position (..)
   ) where
 

@@ -58,19 +58,29 @@ local function haskell_module(rule)
 end
 
 haskell_module {
-    name = "Granite.Name",
-    imports = { },
-}
-
-haskell_module {
-    name = "Granite.Position",
-    imports = { },
-}
-
-haskell_module {
-    name = "Granite.Source",
+    name = "Granite.Behavioral.Abstract",
     imports = {
-        "Granite.Name",
-        "Granite.Position",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
     },
 }
+
+haskell_module {
+    name = "Granite.Common.Name",
+    imports = { },
+}
+
+haskell_module {
+    name = "Granite.Common.Position",
+    imports = { },
+}
+
+haskell_module {
+    name = "Granite.Organizational.Abstract",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
+}
+
