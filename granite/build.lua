@@ -11,14 +11,12 @@ local function haskell_module(rule)
     local outputs = { }
     local args = { }
 
-    table.insert(args, [[-XConstraintKinds]])
     table.insert(args, [[-XDataKinds]])
     table.insert(args, [[-XDerivingStrategies]])
     table.insert(args, [[-XGADTs]])
     table.insert(args, [[-XKindSignatures]])
-    table.insert(args, [[-XMultiParamTypeClasses]])
     table.insert(args, [[-XStandaloneDeriving]])
-    table.insert(args, [[-XTypeOperators]])
+    table.insert(args, [[-XStrictData]])
 
     table.insert(args, [[-Wall]])
     table.insert(args, [[-Wincomplete-record-updates]])
@@ -60,21 +58,19 @@ local function haskell_module(rule)
 end
 
 haskell_module {
-    name = "Granite.Elaborate",
-    imports = { "Granite.Name", "Granite.Interface", "Granite.Source" },
-}
-
-haskell_module {
-    name = "Granite.Interface",
-    imports = { "Granite.Name", "Granite.Source" },
-}
-
-haskell_module {
     name = "Granite.Name",
     imports = { },
 }
 
 haskell_module {
+    name = "Granite.Position",
+    imports = { },
+}
+
+haskell_module {
     name = "Granite.Source",
-    imports = { "Granite.Name" },
+    imports = {
+        "Granite.Name",
+        "Granite.Position",
+    },
 }

@@ -1,16 +1,23 @@
 module Granite.Source
-  ( Definition (..)
-  , Expression (..)
+  ( Definition (..), DefinitionPayload (..)
+  , Expression (..), ExpressionPayload (..)
   ) where
 
 import GHC.TypeLits (Nat)
 
 import Granite.Name (Name)
+import Granite.Position (Position)
 
 -- |
 -- A definition is a top-level definition. A source file is a list of
 -- definitions.
-data Definition
+data Definition =
+  Definition
+    { definitionPosition :: Position
+    , definitionPayload  :: DefinitionPayload }
+  deriving stock (Eq, Show)
+
+data DefinitionPayload
   = ValueDefinition Name (Expression 1) (Expression 0)
   deriving stock (Eq, Show)
 
@@ -22,9 +29,15 @@ data Definition
 -- Using a single GADT for expressions at different universes makes it easy to
 -- reuse logic that is common to all of these universes, such as type inference
 -- and pretty printing.
-data Expression :: Nat -> * where
-  VariableExpression :: Name -> Expression u
-  ApplicationExpression :: Expression u -> Expression u -> Expression u
-  LambdaExpression :: Name -> Expression 0 -> Expression 0
-deriving stock instance Eq (Expression u)
-deriving stock instance Show (Expression u)
+data Expression u =
+  Expression
+    { expressionPosition :: Position
+    , expressionPayload  :: ExpressionPayload u }
+  deriving stock (Eq, Show)
+
+data ExpressionPayload :: Nat -> * where
+  VariableExpression :: Name -> ExpressionPayload u
+  ApplicationExpression :: ExpressionPayload u -> ExpressionPayload u -> ExpressionPayload u
+  LambdaExpression :: Name -> ExpressionPayload 0 -> ExpressionPayload 0
+deriving stock instance Eq (ExpressionPayload u)
+deriving stock instance Show (ExpressionPayload u)
