@@ -5,6 +5,7 @@ nixrule {
             p.hashable
             p.hashtables
             p.primitive
+            p.unordered-containers
         ])
     ]],
 }
@@ -18,9 +19,11 @@ local function haskell_module(rule)
     table.insert(args, [[-XDeriveAnyClass]])
     table.insert(args, [[-XDeriveGeneric]])
     table.insert(args, [[-XDerivingStrategies]])
+    table.insert(args, [[-XFlexibleContexts]])
     table.insert(args, [[-XGADTs]])
     table.insert(args, [[-XGeneralizedNewtypeDeriving]])
     table.insert(args, [[-XKindSignatures]])
+    table.insert(args, [[-XOverloadedStrings]])
     table.insert(args, [[-XStandaloneDeriving]])
     table.insert(args, [[-XStrictData]])
 
@@ -74,6 +77,17 @@ haskell_module {
 haskell_module {
     name = "Granite.Behavioral.Constraint",
     imports = { "Granite.Behavioral.Type" },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.Infer",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Constraint",
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
 }
 
 haskell_module {

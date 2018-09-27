@@ -2,6 +2,7 @@
 -- Types.
 module Granite.Behavioral.Type
   ( Unknown (..)
+  , Skolem (..)
   , Type (..)
   ) where
 
