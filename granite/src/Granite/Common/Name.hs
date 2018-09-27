@@ -2,6 +2,7 @@ module Granite.Common.Name
   ( Name (..)
   ) where
 
+import Data.Hashable (Hashable)
 import Data.Text (Text)
 
 -- |
@@ -11,3 +12,4 @@ import Data.Text (Text)
 -- There are no restrictions on names; they can be any arbitrary text.
 newtype Name = Name Text
   deriving stock (Eq, Ord, Show)
+  deriving newtype (Hashable)

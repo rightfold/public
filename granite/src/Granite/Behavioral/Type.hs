@@ -5,6 +5,9 @@ module Granite.Behavioral.Type
   , Type (..)
   ) where
 
+import Data.Hashable (Hashable)
+import GHC.Generics (Generic)
+
 import Granite.Common.Name (Name)
 
 -- |
@@ -12,7 +15,8 @@ import Granite.Common.Name (Name)
 -- type inference, to be unified later.
 newtype Unknown =
   Unknown Word
-  deriving (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Show)
+  deriving newtype (Hashable)
 
 -- |
 -- A unique identifier for a Skolem. A Skolem is a type that is bound by a
@@ -20,7 +24,8 @@ newtype Unknown =
 -- itself.
 newtype Skolem =
   Skolem Word
-  deriving (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Show)
+  deriving newtype (Hashable)
 
 -- |
 -- A type. Different from @'Granite.Behavioral.Abstract.Expression' 1@ in that
@@ -30,4 +35,5 @@ data Type
   | SkolemType Skolem
   | VariableType Name
   | ApplicationType Type Type
-  deriving (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Generic, Show)
+  deriving anyclass (Hashable)

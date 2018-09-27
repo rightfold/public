@@ -2,6 +2,9 @@ nixrule {
     name = "granite-ghc",
     nixexpr = [[
         nixpkgs.haskell.packages.ghc841.ghcWithPackages (p: [
+            p.hashable
+            p.hashtables
+            p.primitive
         ])
     ]],
 }
@@ -12,8 +15,11 @@ local function haskell_module(rule)
     local args = { }
 
     table.insert(args, [[-XDataKinds]])
+    table.insert(args, [[-XDeriveAnyClass]])
+    table.insert(args, [[-XDeriveGeneric]])
     table.insert(args, [[-XDerivingStrategies]])
     table.insert(args, [[-XGADTs]])
+    table.insert(args, [[-XGeneralizedNewtypeDeriving]])
     table.insert(args, [[-XKindSignatures]])
     table.insert(args, [[-XStandaloneDeriving]])
     table.insert(args, [[-XStrictData]])
@@ -63,6 +69,11 @@ haskell_module {
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.Constraint",
+    imports = { "Granite.Behavioral.Type" },
 }
 
 haskell_module {
