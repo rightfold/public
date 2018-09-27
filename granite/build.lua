@@ -66,6 +66,11 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Behavioral.Type",
+    imports = { "Granite.Common.Name" },
+}
+
+haskell_module {
     name = "Granite.Common.Name",
     imports = { },
 }
