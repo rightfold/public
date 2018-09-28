@@ -18,6 +18,8 @@ import Granite.Behavioral.Type (Type)
 -- |
 -- A set of constraints in some state thread.
 data ConstraintSet s =
+  -- Why use cuckoo hashing? The inserts are faster, at the expense of slower
+  -- lookups. We only do inserts and traversals, no lookups.
   ConstraintSet (HashTable s Constraint ())
 
 data Constraint
