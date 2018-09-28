@@ -8,8 +8,6 @@ module Granite.Behavioral.Constraint
 
 import Control.Monad.Primitive (PrimMonad, PrimState, stToPrim)
 import Data.HashTable.ST.Cuckoo (HashTable)
-import Data.Hashable (Hashable)
-import GHC.Generics (Generic)
 
 import qualified Data.HashTable.ST.Cuckoo as HashTable
 
@@ -18,14 +16,10 @@ import Granite.Behavioral.Type (Type)
 -- |
 -- A set of constraints in some state thread.
 data ConstraintSet s =
-  -- Why use cuckoo hashing? The inserts are faster, at the expense of slower
-  -- lookups. We only do inserts and traversals, no lookups.
-  ConstraintSet (HashTable s Constraint ())
-
-data Constraint
-  = TypeEquality Type Type
-  deriving stock (Eq, Ord, Generic, Show)
-  deriving anyclass (Hashable)
+  ConstraintSet
+    { -- Why use cuckoo hashing? The inserts are faster, at the expense of
+      -- slower lookups. We only do inserts and traversals, no lookups.
+      typeEqualityConstraints :: HashTable s (Type, Type) () }
 
 -- |
 -- Insert a type equality constraint into a constraint set.
@@ -34,8 +28,7 @@ insertTypeEquality :: PrimMonad m => ConstraintSet (PrimState m)
 insertTypeEquality (ConstraintSet constraints) typeA typeB = stToPrim $
   -- By first sorting the pair of types, there should be fewer distinct
   -- constraints, and constraint solving should be faster.
-  let (typeA', typeB') = sortPair (typeA, typeB) in
-  let constraint = TypeEquality typeA' typeB' in
+  let constraint = sortPair (typeA, typeB) in
   HashTable.insert constraints constraint ()
 
 sortPair :: Ord a => (a, a) -> (a, a)
