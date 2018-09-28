@@ -1,14 +1,37 @@
 -- |
 -- Behavioral abstract syntax tree.
 module Granite.Behavioral.Abstract
-  ( Expression (..)
+  ( -- * Universes
+    Universe (..)
+  , pattern UniverseValues
+  , pattern UniverseTypes
+  , pattern UniverseKinds
+  , pattern UniverseSorts
+
+    -- * Expressions
+  , Expression (..)
   , ExpressionPayload (..)
   ) where
 
-import GHC.TypeLits (Nat)
+import GHC.TypeLits (type (+), Nat)
 
 import Granite.Common.Name (Name)
 import Granite.Common.Position (Position)
+
+-- |
+-- Universes, to be matched up at the type level.
+data Universe :: Nat -> * where
+  UniverseZero :: Universe 0
+  UniverseSucc :: Universe n -> Universe (n + 1)
+
+pattern UniverseValues :: Universe 0
+pattern UniverseTypes  :: Universe 1
+pattern UniverseKinds  :: Universe 2
+pattern UniverseSorts  :: Universe 3
+pattern UniverseValues = UniverseZero
+pattern UniverseTypes  = UniverseSucc UniverseZero
+pattern UniverseKinds  = UniverseSucc (UniverseSucc UniverseZero)
+pattern UniverseSorts  = UniverseSucc (UniverseSucc (UniverseSucc UniverseZero))
 
 -- |
 -- The 'Expression' type is used for expressions at any universe: values,

@@ -1,0 +1,3 @@
+value S is lambda a. lambda b. lambda c. a c (b c);
+value K is lambda a. lambda b. a;
+value I is lambda a. a;
