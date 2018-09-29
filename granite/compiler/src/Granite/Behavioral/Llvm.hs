@@ -67,7 +67,7 @@ buildExpression (Expression position payload) = case payload of
     -- TODO: Do something with MonadModuleBuilder.
     undefined
 
-  ForeignExpression source ->
+  ForeignExpression source type_ ->
     undefined
 
 -- |

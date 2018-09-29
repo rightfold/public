@@ -71,7 +71,9 @@ expression3 = \n -> case n of
   foreignExpression = do
     position <- Lex.keyword Lex.K_foreign
     (_, source) <- Lex.textLiteral
-    pure $ Expression position (ForeignExpression source)
+    _ <- Lex.keyword Lex.K_of
+    type_ <- expression UniverseTypes
+    pure $ Expression position (ForeignExpression source type_)
 
   forallExpression :: Parser (Expression 1)
   forallExpression = do

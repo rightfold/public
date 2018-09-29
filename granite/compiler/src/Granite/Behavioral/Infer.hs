@@ -32,7 +32,7 @@ import qualified Data.HashMap.Strict as HashMap
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
-import Granite.Behavioral.Type (Skolem (..), Type (..), Unknown (..))
+import Granite.Behavioral.Type (Skolem (..), Type (..), Unknown (..), typeFromExpression)
 import Granite.Common.Name (Infix (..), Name (..))
 import Granite.Common.Position (Position)
 
@@ -113,8 +113,8 @@ infer (Expression position payload) = case payload of
     returnType <- Reader.local localize $ infer body
     pure $ makeFunctionType parameterType returnType
 
-  ForeignExpression _ ->
-    UnknownType <$> freshUnknown Nothing
+  ForeignExpression _ type_ -> do
+    instantiate (typeFromExpression type_)
 
 -- |
 -- Assert that an expression has a given type.

@@ -1,8 +1,8 @@
-value infix+ is foreign "a => b => a + b";
-value infix- is foreign "a => b => a - b";
-value infix* is foreign "a => b => a * b";
-value infix/ is foreign "a => b => a / b";
+value infix+ is foreign "(a, b) => a + b" of f64 -> f64 -> f64;
+value infix- is foreign "(a, b) => a - b" of f64 -> f64 -> f64;
+value infix* is foreign "(a, b) => a * b" of f64 -> f64 -> f64;
+value infix/ is foreign "(a, b) => a / b" of f64 -> f64 -> f64;
 
-value logE  is foreign "a => Math.log(a)";
-value log2  is foreign "a => Math.log2(a)";
-value log10 is foreign "a => Math.log10(a)";
+value logE  is foreign "a => Math.log(a)"   of f64 -> f64;
+value log2  is foreign "a => Math.log2(a)"  of f64 -> f64;
+value log10 is foreign "a => Math.log10(a)" of f64 -> f64;
