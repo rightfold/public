@@ -24,7 +24,7 @@ import qualified Data.Primitive.MutVar as MutVar
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
 import Granite.Behavioral.Type (Skolem (..), Type (..), Unknown (..))
-import Granite.Common.Name (Name (..))
+import Granite.Common.Name (Infix (..), Name (..))
 import Granite.Common.Position (Position)
 
 import qualified Granite.Behavioral.Constraint as ConstraintSet
@@ -95,10 +95,8 @@ infer (Expression position payload) = case payload of
 
 makeFunctionType :: Type -> Type -> Type
 makeFunctionType parameterType returnType =
-  -- TODO: Move the constant (Name "infix->") to a module with constants.
-  ApplicationType (ApplicationType (VariableType (Name "infix->"))
-                                   parameterType)
-                  returnType
+  ApplicationType (ApplicationType (VariableType arrow) parameterType) returnType
+  where arrow = InfixName InfixHyphenGreater
 
 insertTypeEquality :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
                    => Type -> Type -> m ()

@@ -92,7 +92,10 @@ haskell_module {
 
 haskell_module {
     name = "Granite.Behavioral.Constraint",
-    imports = { "Granite.Behavioral.Type" },
+    imports = {
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+    },
 }
 
 haskell_module {

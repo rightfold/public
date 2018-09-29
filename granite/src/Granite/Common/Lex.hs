@@ -32,7 +32,7 @@ import Text.Parsec.Text (Parser)
 import qualified Text.Parsec as Parser
 import qualified Data.Text as Text
 
-import Granite.Common.Name (Name (..))
+import Granite.Common.Name (Infix (..), Name (..))
 import Granite.Common.Position (Position (..))
 
 --------------------------------------------------------------------------------
@@ -59,6 +59,7 @@ identifierTail = identifierHead <|> Parser.oneOf (['0' .. '9'] ++ "'!?")
 -- |
 -- Keywords.
 data Keyword :: * where
+  K_infix :: Keyword
   K_is :: Keyword
   K_lambda :: Keyword
   K_of :: Keyword
@@ -83,6 +84,7 @@ keyword kw = fmap fst . lexeme $
 -- |
 -- Punctuation.
 data Punctuation :: * where
+  P_hyphen_greater :: Punctuation
   P_paren_left :: Punctuation
   P_paren_right :: Punctuation
   P_period :: Punctuation
@@ -92,10 +94,11 @@ data Punctuation :: * where
 -- |
 -- Given punctuation, its spelling.
 punctuationSpelling :: Punctuation -> Text
-punctuationSpelling P_paren_left  = "("
-punctuationSpelling P_paren_right = ")"
-punctuationSpelling P_period      = "."
-punctuationSpelling P_semicolon   = ";"
+punctuationSpelling P_hyphen_greater = "->"
+punctuationSpelling P_paren_left     = "("
+punctuationSpelling P_paren_right    = ")"
+punctuationSpelling P_period         = "."
+punctuationSpelling P_semicolon      = ";"
 
 -- |
 -- Lex punctuation.
@@ -108,7 +111,15 @@ punctuation = fmap fst . lexeme . Parser.string . Text.unpack . punctuationSpell
 -- |
 -- Lex a name.
 name :: Parser (Position, Name)
-name = fmap Name <$> identifier
+name = plainName <|> infixName
+  where
+  plainName =
+    fmap PlainName <$> identifier
+
+  infixName = do
+    position <- keyword K_infix
+    _ <- punctuation P_hyphen_greater
+    pure (position, InfixName InfixHyphenGreater)
 
 --------------------------------------------------------------------------------
 

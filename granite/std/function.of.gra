@@ -1,3 +1,5 @@
-value S of st;
-value K of kt;
-value I of it;
+value S of infix-> (infix-> a (infix-> b c))
+                   (infix-> (infix-> a b)
+                            (infix-> a c));
+value K of infix-> a (infix-> b a);
+value I of infix-> a a;
