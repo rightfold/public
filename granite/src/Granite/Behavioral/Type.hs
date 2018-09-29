@@ -4,11 +4,13 @@ module Granite.Behavioral.Type
   ( Unknown (..)
   , Skolem (..)
   , Type (..)
+  , typeFromExpression
   ) where
 
 import Data.Hashable (Hashable)
 import GHC.Generics (Generic)
 
+import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Common.Name (Name)
 
 -- |
@@ -38,3 +40,16 @@ data Type
   | ApplicationType Type Type
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)
+
+-- |
+-- Translate an expression in the universe of types into a type.
+typeFromExpression :: Expression 1 -> Type
+typeFromExpression (Expression _ payload) = case payload of
+
+  VariableExpression name ->
+    VariableType name
+
+  ApplicationExpression function argument ->
+    let function' = typeFromExpression function in
+    let argument' = typeFromExpression argument in
+    ApplicationType function' argument'

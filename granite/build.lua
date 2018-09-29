@@ -118,7 +118,11 @@ haskell_module {
 
 haskell_module {
     name = "Granite.Behavioral.Type",
-    imports = { "Granite.Common.Name" },
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
 }
 
 haskell_module {
@@ -149,6 +153,17 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Organizational.Interface",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+        "Granite.Organizational.Abstract",
+    },
+}
+
+haskell_module {
     name = "Granite.Organizational.Parse",
     imports = {
         "Granite.Behavioral.Abstract",
@@ -164,6 +179,7 @@ haskell_module {
     name = "Main",
     imports = {
         "Granite.Organizational.Abstract",
+        "Granite.Organizational.Interface",
         "Granite.Organizational.Parse",
     },
 }
@@ -177,6 +193,7 @@ do
 
     table.insert(args, [[-package]]); table.insert(args, [[hashable]])
     table.insert(args, [[-package]]); table.insert(args, [[parsec]])
+    table.insert(args, [[-package]]); table.insert(args, [[unordered-containers]])
 
     for _, object in ipairs(haskell_objects) do
         table.insert(inputs, object)
