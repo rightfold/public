@@ -31,8 +31,11 @@ typeCheckImplementation = traverse_ . typeCheckDefinition
 typeCheckDefinition :: Interface -> Definition -> Either Error ()
 typeCheckDefinition ifc@(Interface ifcValues) (Definition _ payload) =
   case payload of
-    ValueDefinition name _ bodyExpr ->
+    ValueDefinition name _ (Just bodyExpr) ->
       case HashMap.lookup name ifcValues of
         Nothing      -> throwError (MissingInterface name)
-        Just (_, ty) -> traverse_ (typeCheckExpression ifc (Just ty)) bodyExpr
+        Just (_, ty) -> typeCheckExpression ifc (Just ty) bodyExpr
                           & first BehavioralError
+
+    ValueDefinition _ _ Nothing ->
+      pure ()
