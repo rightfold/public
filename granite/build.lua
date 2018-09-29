@@ -129,6 +129,19 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Behavioral.TypeCheck",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Constraint",
+        "Granite.Behavioral.Infer",
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+        "Granite.Organizational.Interface",
+    },
+}
+
+haskell_module {
     name = "Granite.Common.Lex",
     imports = {
         "Granite.Common.Position",
@@ -179,11 +192,25 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Organizational.TypeCheck",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.TypeCheck",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+        "Granite.Organizational.Abstract",
+        "Granite.Organizational.Interface",
+    },
+}
+
+haskell_module {
     name = "Main",
     imports = {
+        "Granite.Behavioral.TypeCheck",
         "Granite.Organizational.Abstract",
         "Granite.Organizational.Interface",
         "Granite.Organizational.Parse",
+        "Granite.Organizational.TypeCheck",
     },
 }
 
@@ -195,7 +222,9 @@ do
     table.insert(args, [["$(loc @granitec)"]])
 
     table.insert(args, [[-package]]); table.insert(args, [[hashable]])
+    table.insert(args, [[-package]]); table.insert(args, [[hashtables]])
     table.insert(args, [[-package]]); table.insert(args, [[parsec]])
+    table.insert(args, [[-package]]); table.insert(args, [[primitive]])
     table.insert(args, [[-package]]); table.insert(args, [[unordered-containers]])
 
     for _, object in ipairs(haskell_objects) do

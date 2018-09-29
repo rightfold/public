@@ -8,6 +8,7 @@ import qualified Data.Text.IO as Text
 import qualified Text.Parsec as Parser
 
 import Granite.Organizational.Interface (collectInterface)
+import Granite.Organizational.TypeCheck (typeCheckImplementation)
 
 import qualified Granite.Organizational.Parse as Parse
 
@@ -22,6 +23,9 @@ main = do
 
   interface <- either (fail . show) pure $
                  collectInterface syntax
+
+  () <- either (fail . show) pure $
+          typeCheckImplementation interface syntax
 
   print syntax
   print interface

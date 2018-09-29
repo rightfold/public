@@ -33,6 +33,7 @@ import qualified Granite.Behavioral.Constraint as ConstraintSet
 -- Error that occurs during inference.
 data Error
   = UnknownName Position Name
+  deriving stock (Eq, Show)
 
 -- |
 -- Environment in which to infer types. Also contains the constraint set.

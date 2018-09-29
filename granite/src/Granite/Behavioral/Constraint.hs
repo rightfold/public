@@ -3,6 +3,7 @@
 -- for any type errors.
 module Granite.Behavioral.Constraint
   ( ConstraintSet
+  , newConstraintSet
   , insertTypeEquality
   ) where
 
@@ -20,6 +21,11 @@ data ConstraintSet s =
     { -- Why use cuckoo hashing? The inserts are faster, at the expense of
       -- slower lookups. We only do inserts and traversals, no lookups.
       typeEqualityConstraints :: HashTable s (Type, Type) () }
+
+-- |
+-- A new, empty constraint set.
+newConstraintSet :: PrimMonad m => m (ConstraintSet (PrimState m))
+newConstraintSet = ConstraintSet <$> stToPrim HashTable.new
 
 -- |
 -- Insert a type equality constraint into a constraint set.
