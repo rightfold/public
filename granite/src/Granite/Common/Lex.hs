@@ -75,7 +75,7 @@ keywordSpelling = Text.pack . drop 2 . show
 -- |
 -- Lex a keyword.
 keyword :: Keyword -> Parser Position
-keyword kw = fmap fst . lexeme $
+keyword kw = fmap fst . lexeme . Parser.try $
   Parser.string (Text.unpack (keywordSpelling kw))
   <* Parser.notFollowedBy identifierTail
 
