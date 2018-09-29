@@ -1,23 +1,22 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 -- |
 -- Unification of types, resolving of unknowns.
 module Granite.Behavioral.Unify
   ( Error (..)
-  , Environment
+  , State
   , runUnify
   , unify
   , purge
   ) where
 
+import Control.Lens ((?=), at, makeLenses, use)
 import Control.Monad.Error.Class (MonadError, throwError)
-import Control.Monad.Primitive (PrimMonad, PrimState, stToPrim)
-import Control.Monad.Reader.Class (MonadReader)
-import Control.Monad.ST (ST, runST)
-import Control.Monad.Trans.Except (ExceptT, runExceptT)
-import Control.Monad.Trans.Reader (ReaderT, runReaderT)
-import Data.HashTable.ST.Basic (HashTable)
+import Control.Monad.State.Class (MonadState)
+import Control.Monad.Trans.State (StateT, evalStateT)
+import Data.HashMap.Strict (HashMap)
 
-import qualified Control.Monad.Reader.Class as Reader
-import qualified Data.HashTable.ST.Basic as HashTable
+import qualified Data.HashMap.Strict as HashMap
 
 import Granite.Behavioral.Type (Type (..), Unknown)
 
@@ -28,25 +27,18 @@ data Error
   deriving stock (Eq, Show)
 
 -- |
--- Environment for unification.
-newtype Environment s =
-  Environment
-    { envSolutions :: HashTable s Unknown Type }
+-- State for unification.
+newtype State = State { _stateSolutions :: HashMap Unknown Type }
+$(makeLenses ''State)
 
 -- |
 -- Run a unification action in a new environment.
-runUnify :: (forall s. ReaderT (Environment s) (ExceptT Error (ST s)) a)
-         -> Either Error a
-runUnify action = runST $ do
-  env <- Environment <$> HashTable.new
-  runExceptT (runReaderT action env)
+runUnify :: StateT State (Either Error) a -> Either Error a
+runUnify action = evalStateT action (State HashMap.empty)
 
 -- |
 -- Ensure that two types are the same, solving unknown if needed.
-unify :: ( MonadError Error m
-         , MonadReader (Environment (PrimState m)) m
-         , PrimMonad m )
-      => Type -> Type -> m ()
+unify :: (MonadError Error m, MonadState State m) => Type -> Type -> m ()
 unify t1 t2 = do
   t1' <- purge t1
   t2' <- purge t2
@@ -54,10 +46,8 @@ unify t1 t2 = do
 
 -- |
 -- Like 'unify', but do not first purge the inputs.
-unify' :: ( MonadError Error m
-          , MonadReader (Environment (PrimState m)) m
-          , PrimMonad m )
-       => Type -> Type -> m ()
+unify' :: (MonadError Error m, MonadState State m) => Type -> Type -> m ()
+
 unify' (UnknownType u1) (UnknownType u2) | u1 == u2 = pure ()
 unify' (UnknownType u) t = recordSolution u t
 unify' t (UnknownType u) = recordSolution u t
@@ -76,15 +66,9 @@ unify' (ApplicationType f1 a1) (ApplicationType f2 a2) = do
 
 -- |
 -- Replace solved unknowns by their solutions.
-purge :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
-      => Type -> m Type
-purge t@(UnknownType u) = do
-  solutions <- Reader.asks envSolutions
-  maybe (pure t) purge =<< stToPrim (HashTable.lookup solutions u)
+purge :: MonadState State m => Type -> m Type
+purge t@(UnknownType u) = maybe (pure t) purge =<< use (stateSolutions . at u)
 purge t = pure t
 
-recordSolution :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
-               => Unknown -> Type -> m ()
-recordSolution u t = do
-  solutions <- Reader.asks envSolutions
-  stToPrim $ HashTable.insert solutions u t
+recordSolution :: MonadState State m => Unknown -> Type -> m ()
+recordSolution u t = stateSolutions . at u ?= t

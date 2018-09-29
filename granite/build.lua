@@ -3,10 +3,9 @@ nixrule {
     nixexpr = [[
         nixpkgs.haskell.packages.ghc841.ghcWithPackages (p: [
             p.hashable
-            p.hashtables
+            p.lens
             p.optparse-applicative
             p.parsec
-            p.primitive
             p.unordered-containers
         ])
     ]],
@@ -233,10 +232,9 @@ do
     table.insert(args, [["$(loc @granitec)"]])
 
     table.insert(args, [[-package]]); table.insert(args, [[hashable]])
-    table.insert(args, [[-package]]); table.insert(args, [[hashtables]])
+    table.insert(args, [[-package]]); table.insert(args, [[lens]])
     table.insert(args, [[-package]]); table.insert(args, [[optparse-applicative]])
     table.insert(args, [[-package]]); table.insert(args, [[parsec]])
-    table.insert(args, [[-package]]); table.insert(args, [[primitive]])
     table.insert(args, [[-package]]); table.insert(args, [[unordered-containers]])
 
     for _, object in ipairs(haskell_objects) do

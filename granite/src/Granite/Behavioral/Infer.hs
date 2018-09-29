@@ -1,25 +1,28 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 -- |
 -- Infer types of expressions.
 module Granite.Behavioral.Infer
   ( -- * Infrastructure
     Error (..)
   , Environment (..)
+  , State
   , freshUnknown
   , freshSkolem
+  , runInfer
 
     -- * Inference
   , infer
   ) where
 
+import Control.Lens ((^.), (?~), (%=), (<<%=), at, makeLenses, view)
 import Control.Monad.Error.Class (MonadError, throwError)
-import Control.Monad.Primitive (PrimMonad, PrimState)
 import Control.Monad.Reader.Class (MonadReader)
+import Control.Monad.State.Class (MonadState)
+import Control.Monad.Trans.RWS (RWST, runRWST)
 import Data.HashMap.Strict (HashMap)
-import Data.Primitive.MutVar (MutVar)
 
 import qualified Control.Monad.Reader.Class as Reader
-import qualified Data.HashMap.Strict as HashMap
-import qualified Data.Primitive.MutVar as MutVar
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
@@ -36,42 +39,48 @@ data Error
   deriving stock (Eq, Show)
 
 -- |
--- Environment in which to infer types. Also contains the constraint set.
-data Environment s =
-  Environment
-    { envVariables   :: HashMap Name Type
-    , envConstraints :: ConstraintSet s
-    , envNextFresh   :: MutVar s Word }
+-- Environment in which to infer types.
+newtype Environment = Environment { _envVariables :: HashMap Name Type }
+$(makeLenses ''Environment)
+
+-- |
+-- State used while inferring types.
+data State =
+  State
+    { _stateConstraints :: ConstraintSet
+    , _stateNextFresh :: Word }
+$(makeLenses ''State)
 
 -- |
 -- Generate a fresh unknown.
-freshUnknown :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
-             => m Unknown
-freshUnknown = do
-  var <- Reader.asks envNextFresh
-  MutVar.modifyMutVar' var succ
-  Unknown <$> MutVar.readMutVar var
+freshUnknown :: MonadState State m => m Unknown
+freshUnknown = Unknown <$> (stateNextFresh <<%= succ)
 
 -- |
 -- Generate a fresh Skolem.
-freshSkolem :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
-             => m Skolem
-freshSkolem = do
-  var <- Reader.asks envNextFresh
-  MutVar.modifyMutVar' var succ
-  Skolem <$> MutVar.readMutVar var
+freshSkolem :: MonadState State m => m Skolem
+freshSkolem = Skolem <$> (stateNextFresh <<%= succ)
+
+-- |
+-- Run an inference action.
+runInfer :: RWST Environment () State (Either Error) a
+         -> Environment
+         -> Either Error (ConstraintSet, a)
+runInfer action env =
+  extract <$> runRWST action env (State ConstraintSet.empty 0)
+  where extract (a, s, ()) = (s ^. stateConstraints, a)
 
 -- |
 -- Infer the type of an expression, collecting constraints.
 infer :: ( MonadError Error m
-         , MonadReader (Environment (PrimState m)) m
-         , PrimMonad m )
+         , MonadReader Environment m
+         , MonadState State m )
       => Expression 0 -> m Type
 infer (Expression position payload) = case payload of
 
-  VariableExpression name -> do
-    type_ <- Reader.asks (HashMap.lookup name . envVariables)
-    maybe (throwError (UnknownName position name)) pure type_
+  VariableExpression name ->
+    maybe (throwError (UnknownName position name)) pure =<<
+      view (envVariables . at name)
 
   ApplicationExpression function argument -> do
     functionType <- infer function
@@ -87,11 +96,8 @@ infer (Expression position payload) = case payload of
 
   LambdaExpression parameter body -> do
     parameterType <- UnknownType <$> freshUnknown
-
-    let insertParameter = HashMap.insert parameter parameterType
-    let insertParameter' e = e { envVariables = insertParameter (envVariables e) }
-    returnType <- Reader.local insertParameter' (infer body)
-
+    let localize = envVariables . at parameter ?~ parameterType
+    returnType <- Reader.local localize $ infer body
     pure $ makeFunctionType parameterType returnType
 
 makeFunctionType :: Type -> Type -> Type
@@ -99,8 +105,6 @@ makeFunctionType parameterType returnType =
   ApplicationType (ApplicationType (VariableType arrow) parameterType) returnType
   where arrow = InfixName InfixHyphenGreater
 
-insertTypeEquality :: (MonadReader (Environment (PrimState m)) m, PrimMonad m)
-                   => Type -> Type -> m ()
-insertTypeEquality typeA typeB = do
-  constraints <- Reader.asks envConstraints
-  ConstraintSet.insertTypeEquality constraints typeA typeB
+insertTypeEquality :: MonadState State m => Type -> Type -> m ()
+insertTypeEquality typeA typeB =
+  stateConstraints %= ConstraintSet.insertTypeEquality typeA typeB
