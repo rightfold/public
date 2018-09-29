@@ -1,12 +1,12 @@
 value e  of f64;
 value pi of f64;
 
-value infix+ of infix-> f64 (infix-> f64 f64);
-value infix- of infix-> f64 (infix-> f64 f64);
-value infix* of infix-> f64 (infix-> f64 f64);
-value infix/ of infix-> f64 (infix-> f64 f64);
+value infix+ of f64 -> f64 -> f64;
+value infix- of f64 -> f64 -> f64;
+value infix* of f64 -> f64 -> f64;
+value infix/ of f64 -> f64 -> f64;
 
-value log   of infix-> f64 (infix-> f64 f64);
-value loge  of infix-> f64 f64;
-value log2  of infix-> f64 f64;
-value log10 of infix-> f64 f64;
+value log   of f64 -> f64 -> f64;
+value loge  of f64 -> f64;
+value log2  of f64 -> f64;
+value log10 of f64 -> f64;
