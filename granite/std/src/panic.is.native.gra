@@ -1,0 +1,1 @@
+value PANIC is foreign "graRtsPanic" of forall a. u8Array -> a;

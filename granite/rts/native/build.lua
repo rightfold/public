@@ -32,6 +32,15 @@ local function translation_unit(rule)
 end
 
 translation_unit {
+    name = "panic",
+    source = "+granite/rts/native/src/panic.c",
+    includes = {
+        "+granite/rts/native/src/panic.h",
+    },
+    output = "@panic.o",
+}
+
+translation_unit {
     name = "value",
     source = "+granite/rts/native/src/value.c",
     includes = {
