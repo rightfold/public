@@ -1,13 +1,34 @@
 nixrule {
     name = "granite-ghc",
     nixexpr = [[
-        nixpkgs.haskell.packages.ghc841.ghcWithPackages (p: [
-            p.hashable
-            p.lens
-            p.optparse-applicative
-            p.parsec
-            p.unordered-containers
-        ])
+        let
+            llvm-hs = fetchTarball {
+                url = "https://github.com/llvm-hs/llvm-hs/archive/llvm-hs-pure-7.0.0.tar.gz";
+                sha256 = "15gmynpvgd78v4rwzm2glcwajw2cjjnx1j33kq8kn3384bblkg3a";
+            };
+            llvm-hs-pure = p: p.mkDerivation {
+                pname = "llvm-hs-pure";
+                version = "7.0.0";
+                src = llvm-hs + "/llvm-hs-pure";
+                libraryHaskellDepends = [
+                    p.attoparsec
+                    p.fail
+                    p.tasty
+                    p.tasty-hunit
+                    p.tasty-quickcheck
+                    p.unordered-containers
+                ];
+                license = nixpkgs.stdenv.lib.licenses.bsd3;
+            };
+        in
+            nixpkgs.haskell.packages.ghc841.ghcWithPackages (p: [
+                (llvm-hs-pure p)
+                p.hashable
+                p.lens
+                p.optparse-applicative
+                p.parsec
+                p.unordered-containers
+            ])
     ]],
 }
 
@@ -111,6 +132,11 @@ haskell_module {
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.LLVM",
+    imports = { },
 }
 
 haskell_module {
@@ -221,6 +247,7 @@ haskell_module {
 haskell_module {
     name = "Main",
     imports = {
+        "Granite.Behavioral.LLVM",
         "Granite.Behavioral.TypeCheck",
         "Granite.Behavioral.Unify",
         "Granite.Organizational.Abstract",
