@@ -1,4 +1,8 @@
-value add is foreign "a => b => a + b";
-value sub is foreign "a => b => a - b";
-value mul is foreign "a => b => a * b";
-value div is foreign "a => b => a / b";
+value infix+ is foreign "a => b => a + b";
+value infix- is foreign "a => b => a - b";
+value infix* is foreign "a => b => a * b";
+value infix/ is foreign "a => b => a / b";
+
+value loge  is foreign "a => Math.log(a)";
+value log2  is foreign "a => Math.log2(a)";
+value log10 is foreign "a => Math.log10(a)";

@@ -20,7 +20,11 @@ data Name
 
 -- |
 -- An infix operator.
-data Infix
-  = InfixHyphenGreater
+data Infix :: * where
+  InfixAsterisk :: Infix
+  InfixHyphen :: Infix
+  InfixHyphenGreater :: Infix
+  InfixPlus :: Infix
+  InfixSolidus :: Infix
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)

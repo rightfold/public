@@ -28,6 +28,7 @@ module Granite.Common.Lex
 
 import Control.Applicative ((<|>), many)
 import Control.Monad (when)
+import Data.Functor (void)
 import Data.Text (Text)
 import Text.Parsec ((<?>))
 import Text.Parsec.Text (Parser)
@@ -89,26 +90,35 @@ keyword kw = fmap fst . lexeme . Parser.try $
 -- |
 -- Punctuation.
 data Punctuation :: * where
+  P_asterisk :: Punctuation
+  P_hyphen :: Punctuation
   P_hyphen_greater :: Punctuation
   P_paren_left :: Punctuation
   P_paren_right :: Punctuation
   P_period :: Punctuation
+  P_plus :: Punctuation
   P_semicolon :: Punctuation
+  P_solidus :: Punctuation
   deriving stock (Eq, Ord, Bounded, Enum, Show)
 
 -- |
 -- Given punctuation, its spelling.
 punctuationSpelling :: Punctuation -> Text
+punctuationSpelling P_asterisk       = "*"
+punctuationSpelling P_hyphen         = "-"
 punctuationSpelling P_hyphen_greater = "->"
 punctuationSpelling P_paren_left     = "("
 punctuationSpelling P_paren_right    = ")"
 punctuationSpelling P_period         = "."
+punctuationSpelling P_plus           = "+"
 punctuationSpelling P_semicolon      = ";"
+punctuationSpelling P_solidus        = "/"
 
 -- |
 -- Lex punctuation.
 punctuation :: Punctuation -> Parser Position
-punctuation = fmap fst . lexeme . Parser.string . Text.unpack . punctuationSpelling
+punctuation = fmap fst . lexeme . Parser.try .
+                Parser.string . Text.unpack . punctuationSpelling
 
 --------------------------------------------------------------------------------
 -- Literals
@@ -133,19 +143,31 @@ name = plainName <|> infixName
 
   infixName = do
     position <- keyword K_infix
-    _ <- punctuation P_hyphen_greater
-    pure (position, InfixName InfixHyphenGreater)
+    infix_ <- Parser.choice [ -- Two characters.
+                              InfixHyphenGreater <$ punctuation P_hyphen_greater
+
+                              -- One character.
+                            , InfixAsterisk <$ punctuation P_asterisk
+                            , InfixHyphen <$ punctuation P_hyphen
+                            , InfixPlus <$ punctuation P_plus
+                            , InfixSolidus <$ punctuation P_solidus
+                            ]
+    pure (position, InfixName infix_)
 
 --------------------------------------------------------------------------------
 
 lexeme :: Parser a -> Parser (Position, a)
 lexeme parser = do
-  let space = Parser.oneOf " \t\r\n"
-  _ <- many space
+  _ <- many ignored
   position <- makePosition <$> Parser.getPosition
   result <- parser
-  _ <- many space
+  _ <- many ignored
   pure (position, result)
+  where
+  ignored = void space <|> void comment
+  space   = Parser.oneOf " \t\r\n"
+  comment = do { _ <- Parser.try (Parser.string "--")
+               ; many (Parser.noneOf ['\n']) }
 
 makePosition :: Parser.SourcePos -> Position
 makePosition pos =
