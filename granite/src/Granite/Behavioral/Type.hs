@@ -38,6 +38,7 @@ data Type
   | SkolemType Skolem
   | VariableType Name
   | ApplicationType Type Type
+  | ForallType Name Type
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)
 
@@ -53,3 +54,7 @@ typeFromExpression (Expression _ payload) = case payload of
     let function' = typeFromExpression function in
     let argument' = typeFromExpression argument in
     ApplicationType function' argument'
+
+  ForallExpression parameter body ->
+    let body' = typeFromExpression body in
+    ForallType parameter body'

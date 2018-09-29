@@ -25,6 +25,7 @@ import Granite.Behavioral.Type (Type (..), Unknown)
 -- Unification error.
 data Error
   = CannotUnify Type Type
+  | HigherRankType
   deriving stock (Eq, Show)
 
 -- |
@@ -64,6 +65,12 @@ unify' t1 t2@(VariableType _) = throwError $ CannotUnify t1 t2
 unify' (ApplicationType f1 a1) (ApplicationType f2 a2) = do
   unify f1 f2
   unify a1 a2
+
+-- Until higher-rank types are supported, these should not occur inside a type
+-- passed to unify, because they should be elimitated by 'instantiate' or
+-- 'skolemize'.
+unify' (ForallType _ _) _ = throwError $ HigherRankType
+unify' _ (ForallType _ _) = throwError $ HigherRankType
 
 -- |
 -- Replace solved unknowns by their solutions.

@@ -8,7 +8,7 @@ import Text.Parsec.Text (Parser)
 
 import qualified Text.Parsec as Parser
 
-import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..), Universe (..))
+import Granite.Behavioral.Abstract (pattern UniverseTypes, pattern UniverseValues, Expression (..), ExpressionPayload (..), Universe)
 
 import qualified Granite.Common.Lex as Lex
 
@@ -24,8 +24,9 @@ expression1 n = do
 
 expression2 :: Universe n -> Parser (Expression n)
 expression2 = \n -> case n of
-  UniverseZero   -> parenExpression n <|> variableExpression <|> lambdaExpression
-  UniverseSucc _ -> parenExpression n <|> variableExpression
+  UniverseValues -> parenExpression n <|> variableExpression <|> lambdaExpression
+  UniverseTypes  -> parenExpression n <|> variableExpression <|> forallExpression
+  _              -> parenExpression n <|> variableExpression
   where
   parenExpression :: Universe n -> Parser (Expression n)
   parenExpression n = do
@@ -44,5 +45,13 @@ expression2 = \n -> case n of
     position <- Lex.keyword Lex.K_lambda
     (_, parameter) <- Lex.name
     _ <- Lex.punctuation Lex.P_period
-    body <- expression UniverseZero
+    body <- expression UniverseValues
     pure $ Expression position (LambdaExpression parameter body)
+
+  forallExpression :: Parser (Expression 1)
+  forallExpression = do
+    position <- Lex.keyword Lex.K_forall
+    (_, parameter) <- Lex.name
+    _ <- Lex.punctuation Lex.P_period
+    body <- expression UniverseTypes
+    pure $ Expression position (ForallExpression parameter body)

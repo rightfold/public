@@ -59,6 +59,7 @@ identifierTail = identifierHead <|> Parser.oneOf (['0' .. '9'] ++ "'!?")
 -- |
 -- Keywords.
 data Keyword :: * where
+  K_forall :: Keyword
   K_infix :: Keyword
   K_is :: Keyword
   K_lambda :: Keyword

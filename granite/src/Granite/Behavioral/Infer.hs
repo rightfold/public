@@ -14,9 +14,13 @@ module Granite.Behavioral.Infer
     -- * Inference
   , infer
   , assert
+
+    -- * Polymorphism
+  , instantiate
+  , skolemize
   ) where
 
-import Control.Lens ((^.), (?~), (%=), (<<%=), at, makeLenses, view)
+import Control.Lens ((&), (^.), (?~), (%=), (<<%=), at, makeLenses, view)
 import Control.Monad.Error.Class (MonadError, throwError)
 import Control.Monad.Reader.Class (MonadReader)
 import Control.Monad.State.Class (MonadState)
@@ -24,6 +28,7 @@ import Control.Monad.Trans.RWS (RWST, runRWST)
 import Data.HashMap.Strict (HashMap)
 
 import qualified Control.Monad.Reader.Class as Reader
+import qualified Data.HashMap.Strict as HashMap
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
@@ -32,6 +37,9 @@ import Granite.Common.Name (Infix (..), Name (..))
 import Granite.Common.Position (Position)
 
 import qualified Granite.Behavioral.Constraint as ConstraintSet
+
+--------------------------------------------------------------------------------
+-- Infrastructure
 
 -- |
 -- Error that occurs during inference.
@@ -71,6 +79,9 @@ runInfer action env =
   extract <$> runRWST action env (State ConstraintSet.empty 0)
   where extract (a, s, ()) = (s ^. stateConstraints, a)
 
+--------------------------------------------------------------------------------
+-- Inference
+
 -- |
 -- Infer the type of an expression, collecting constraints.
 infer :: ( MonadError Error m
@@ -80,9 +91,9 @@ infer :: ( MonadError Error m
 infer (Expression position payload) = case payload of
 
   VariableExpression name ->
-    -- TODO: Instantiate the type.
-    maybe (throwError (UnknownName position name)) pure =<<
-      view (envVariables . at name)
+    maybe (throwError (UnknownName position name))
+          instantiate
+          =<< view (envVariables . at name)
 
   ApplicationExpression function argument -> do
     functionType <- infer function
@@ -109,9 +120,38 @@ assert :: ( MonadError Error m
           , MonadState State m )
        => Type -> Expression 0 -> m ()
 assert expected expression = do
-  -- TODO: Skolemize the expected type.
+  expected' <- skolemize expected
   actual <- infer expression
-  insertTypeEquality expected actual
+  insertTypeEquality expected' actual
+
+--------------------------------------------------------------------------------
+-- Polymorphism
+
+-- |
+-- Replace variables bound by forall with fresh unknowns.
+instantiate :: MonadState State m => Type -> m Type
+instantiate = refresh (UnknownType <$> freshUnknown)
+
+-- |
+-- Replace variables bound by forall with fresh Skolems.
+skolemize :: MonadState State m => Type -> m Type
+skolemize = refresh (SkolemType <$> freshSkolem)
+
+refresh :: forall m. MonadState State m => m Type -> Type -> m Type
+refresh fresh = go HashMap.empty
+  where
+  go :: HashMap Name Type -> Type -> m Type
+  go _ t@(UnknownType _)     = pure t
+  go _ t@(SkolemType _)      = pure t
+  go s t@(VariableType name) = pure (HashMap.lookupDefault t name s)
+  go s (ApplicationType function argument) = do
+    function' <- go s function
+    argument' <- go s argument
+    pure $ ApplicationType function' argument'
+  go s (ForallType parameter body) =
+    do { t <- fresh; go (s & at parameter ?~ t) body }
+
+--------------------------------------------------------------------------------
 
 makeFunctionType :: Type -> Type -> Type
 makeFunctionType parameterType returnType =

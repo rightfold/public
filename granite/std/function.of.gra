@@ -1,5 +1,10 @@
-value S of infix-> (infix-> a (infix-> b c))
+value S of forall a. forall b. forall c.
+           infix-> (infix-> a (infix-> b c))
                    (infix-> (infix-> a b)
                             (infix-> a c));
-value K of infix-> a (infix-> b a);
-value I of infix-> a a;
+
+value K of forall a. forall b.
+           infix-> a (infix-> b a);
+
+value I of forall a.
+           infix-> a a;

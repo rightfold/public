@@ -24,10 +24,10 @@ data Universe :: Nat -> * where
   UniverseZero :: Universe 0
   UniverseSucc :: Universe n -> Universe (n + 1)
 
-pattern UniverseValues :: Universe 0
-pattern UniverseTypes  :: Universe 1
-pattern UniverseKinds  :: Universe 2
-pattern UniverseSorts  :: Universe 3
+pattern UniverseValues :: () => (n ~ 0) => Universe n
+pattern UniverseTypes  :: () => (n ~ 1) => Universe n
+pattern UniverseKinds  :: () => (n ~ 2) => Universe n
+pattern UniverseSorts  :: () => (n ~ 3) => Universe n
 pattern UniverseValues = UniverseZero
 pattern UniverseTypes  = UniverseSucc UniverseZero
 pattern UniverseKinds  = UniverseSucc (UniverseSucc UniverseZero)
@@ -51,5 +51,6 @@ data ExpressionPayload :: Nat -> * where
   VariableExpression :: Name -> ExpressionPayload u
   ApplicationExpression :: Expression u -> Expression u -> ExpressionPayload u
   LambdaExpression :: Name -> Expression 0 -> ExpressionPayload 0
+  ForallExpression :: Name -> Expression 1 -> ExpressionPayload 1
 deriving stock instance Eq (ExpressionPayload u)
 deriving stock instance Show (ExpressionPayload u)
