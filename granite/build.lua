@@ -30,6 +30,7 @@ local function haskell_module(rule)
     table.insert(args, [[-XKindSignatures]])
     table.insert(args, [[-XOverloadedStrings]])
     table.insert(args, [[-XPatternSynonyms]])
+    table.insert(args, [[-XRankNTypes]])
     table.insert(args, [[-XStandaloneDeriving]])
     table.insert(args, [[-XStrictData]])
     table.insert(args, [[-XTypeOperators]])
@@ -143,6 +144,14 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Behavioral.Unify",
+    imports = {
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+    },
+}
+
+haskell_module {
     name = "Granite.Common.Lex",
     imports = {
         "Granite.Common.Position",
@@ -208,6 +217,7 @@ haskell_module {
     name = "Main",
     imports = {
         "Granite.Behavioral.TypeCheck",
+        "Granite.Behavioral.Unify",
         "Granite.Organizational.Abstract",
         "Granite.Organizational.Interface",
         "Granite.Organizational.Parse",
