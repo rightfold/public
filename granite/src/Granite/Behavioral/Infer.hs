@@ -13,6 +13,7 @@ module Granite.Behavioral.Infer
 
     -- * Inference
   , infer
+  , assert
   ) where
 
 import Control.Lens ((^.), (?~), (%=), (<<%=), at, makeLenses, view)
@@ -79,6 +80,7 @@ infer :: ( MonadError Error m
 infer (Expression position payload) = case payload of
 
   VariableExpression name ->
+    -- TODO: Instantiate the type.
     maybe (throwError (UnknownName position name)) pure =<<
       view (envVariables . at name)
 
@@ -99,6 +101,17 @@ infer (Expression position payload) = case payload of
     let localize = envVariables . at parameter ?~ parameterType
     returnType <- Reader.local localize $ infer body
     pure $ makeFunctionType parameterType returnType
+
+-- |
+-- Assert that an expression has a given type.
+assert :: ( MonadError Error m
+          , MonadReader Environment m
+          , MonadState State m )
+       => Type -> Expression 0 -> m ()
+assert expected expression = do
+  -- TODO: Skolemize the expected type.
+  actual <- infer expression
+  insertTypeEquality expected actual
 
 makeFunctionType :: Type -> Type -> Type
 makeFunctionType parameterType returnType =
