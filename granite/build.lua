@@ -95,6 +95,7 @@ haskell_module {
     name = "Granite.Behavioral.Constraint",
     imports = {
         "Granite.Behavioral.Type",
+        "Granite.Behavioral.Unify",
         "Granite.Common.Name",
     },
 }

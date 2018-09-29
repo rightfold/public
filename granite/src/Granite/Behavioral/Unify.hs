@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- |
--- Unification of types, resolving of unknowns.
+-- Unification of types, resolving of unknowns. Used as part of constraint
+-- solving.
 module Granite.Behavioral.Unify
   ( Error (..)
   , State
