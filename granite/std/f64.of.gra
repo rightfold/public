@@ -7,6 +7,6 @@ value infix* of f64 -> f64 -> f64;
 value infix/ of f64 -> f64 -> f64;
 
 value log   of f64 -> f64 -> f64;
-value loge  of f64 -> f64;
+value logE  of f64 -> f64;
 value log2  of f64 -> f64;
 value log10 of f64 -> f64;
