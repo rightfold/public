@@ -24,9 +24,13 @@ expression1 n = do
 
 expression2 :: Universe n -> Parser (Expression n)
 expression2 = \n -> case n of
-  UniverseValues -> parenExpression n <|> variableExpression <|> lambdaExpression
-  UniverseTypes  -> parenExpression n <|> variableExpression <|> forallExpression
-  _              -> parenExpression n <|> variableExpression
+  UniverseValues ->
+    parenExpression n <|> variableExpression <|> lambdaExpression <|>
+    foreignExpression
+  UniverseTypes ->
+    parenExpression n <|> variableExpression <|> forallExpression
+  _ ->
+    parenExpression n <|> variableExpression
   where
   parenExpression :: Universe n -> Parser (Expression n)
   parenExpression n = do
@@ -47,6 +51,12 @@ expression2 = \n -> case n of
     _ <- Lex.punctuation Lex.P_period
     body <- expression UniverseValues
     pure $ Expression position (LambdaExpression parameter body)
+
+  foreignExpression :: Parser (Expression 0)
+  foreignExpression = do
+    position <- Lex.keyword Lex.K_foreign
+    (_, source) <- Lex.textLiteral
+    pure $ Expression position (ForeignExpression source)
 
   forallExpression :: Parser (Expression 1)
   forallExpression = do

@@ -113,6 +113,9 @@ infer (Expression position payload) = case payload of
     returnType <- Reader.local localize $ infer body
     pure $ makeFunctionType parameterType returnType
 
+  ForeignExpression _ ->
+    UnknownType <$> freshUnknown
+
 -- |
 -- Assert that an expression has a given type.
 assert :: ( MonadError Error m

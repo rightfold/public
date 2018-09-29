@@ -13,6 +13,7 @@ module Granite.Behavioral.Abstract
   , ExpressionPayload (..)
   ) where
 
+import Data.Text (Text)
 import GHC.TypeLits (type (+), Nat)
 
 import Granite.Common.Name (Name)
@@ -51,6 +52,7 @@ data ExpressionPayload :: Nat -> * where
   VariableExpression :: Name -> ExpressionPayload u
   ApplicationExpression :: Expression u -> Expression u -> ExpressionPayload u
   LambdaExpression :: Name -> Expression 0 -> ExpressionPayload 0
+  ForeignExpression :: Text -> ExpressionPayload 0
   ForallExpression :: Name -> Expression 1 -> ExpressionPayload 1
 deriving stock instance Eq (ExpressionPayload u)
 deriving stock instance Show (ExpressionPayload u)

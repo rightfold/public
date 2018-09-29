@@ -1,0 +1,4 @@
+value add is foreign "a => b => a + b";
+value sub is foreign "a => b => a - b";
+value mul is foreign "a => b => a * b";
+value div is foreign "a => b => a / b";

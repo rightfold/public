@@ -1,0 +1,4 @@
+value add of infix-> f64 (infix-> f64 f64);
+value sub of infix-> f64 (infix-> f64 f64);
+value mul of infix-> f64 (infix-> f64 f64);
+value div of infix-> f64 (infix-> f64 f64);

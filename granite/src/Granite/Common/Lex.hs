@@ -19,6 +19,9 @@ module Granite.Common.Lex
   , punctuationSpelling
   , punctuation
 
+    -- * Literals
+  , textLiteral
+
     -- * Compound
   , name
   ) where
@@ -60,6 +63,7 @@ identifierTail = identifierHead <|> Parser.oneOf (['0' .. '9'] ++ "'!?")
 -- Keywords.
 data Keyword :: * where
   K_forall :: Keyword
+  K_foreign :: Keyword
   K_infix :: Keyword
   K_is :: Keyword
   K_lambda :: Keyword
@@ -105,6 +109,16 @@ punctuationSpelling P_semicolon      = ";"
 -- Lex punctuation.
 punctuation :: Punctuation -> Parser Position
 punctuation = fmap fst . lexeme . Parser.string . Text.unpack . punctuationSpelling
+
+--------------------------------------------------------------------------------
+-- Literals
+
+textLiteral :: Parser (Position, Text)
+textLiteral = lexeme $ do
+  _ <- Parser.char '"'
+  cs <- many (Parser.noneOf ['"'])
+  _ <- Parser.char '"'
+  pure $ Text.pack cs
 
 --------------------------------------------------------------------------------
 -- Compound
