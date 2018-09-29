@@ -48,6 +48,7 @@ local function haskell_module(rule)
     table.insert(args, [[-XGADTs]])
     table.insert(args, [[-XGeneralizedNewtypeDeriving]])
     table.insert(args, [[-XKindSignatures]])
+    table.insert(args, [[-XLambdaCase]])
     table.insert(args, [[-XOverloadedStrings]])
     table.insert(args, [[-XPatternSynonyms]])
     table.insert(args, [[-XRankNTypes]])
@@ -135,8 +136,12 @@ haskell_module {
 }
 
 haskell_module {
-    name = "Granite.Behavioral.LLVM",
-    imports = { },
+    name = "Granite.Behavioral.Llvm",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
 }
 
 haskell_module {
@@ -247,7 +252,7 @@ haskell_module {
 haskell_module {
     name = "Main",
     imports = {
-        "Granite.Behavioral.LLVM",
+        "Granite.Behavioral.Llvm",
         "Granite.Behavioral.TypeCheck",
         "Granite.Behavioral.Unify",
         "Granite.Organizational.Abstract",
