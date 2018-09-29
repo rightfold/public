@@ -62,13 +62,13 @@ $(makeLenses ''State)
 
 -- |
 -- Generate a fresh unknown.
-freshUnknown :: MonadState State m => m Unknown
-freshUnknown = Unknown <$> (stateNextFresh <<%= succ)
+freshUnknown :: MonadState State m => Maybe Name -> m Unknown
+freshUnknown hint = Unknown <$> (stateNextFresh <<%= succ) <*> pure hint
 
 -- |
 -- Generate a fresh Skolem.
-freshSkolem :: MonadState State m => m Skolem
-freshSkolem = Skolem <$> (stateNextFresh <<%= succ)
+freshSkolem :: MonadState State m => Maybe Name -> m Skolem
+freshSkolem hint = Skolem <$> (stateNextFresh <<%= succ) <*> pure hint
 
 -- |
 -- Run an inference action.
@@ -99,8 +99,8 @@ infer (Expression position payload) = case payload of
     functionType <- infer function
     argumentType <- infer argument
 
-    parameterType <- UnknownType <$> freshUnknown
-    returnType <- UnknownType <$> freshUnknown
+    parameterType <- UnknownType <$> freshUnknown Nothing
+    returnType <- UnknownType <$> freshUnknown Nothing
 
     insertTypeEquality functionType (makeFunctionType parameterType returnType)
     insertTypeEquality argumentType parameterType
@@ -108,13 +108,13 @@ infer (Expression position payload) = case payload of
     pure returnType
 
   LambdaExpression parameter body -> do
-    parameterType <- UnknownType <$> freshUnknown
+    parameterType <- UnknownType <$> freshUnknown (Just parameter)
     let localize = envVariables . at parameter ?~ parameterType
     returnType <- Reader.local localize $ infer body
     pure $ makeFunctionType parameterType returnType
 
   ForeignExpression _ ->
-    UnknownType <$> freshUnknown
+    UnknownType <$> freshUnknown Nothing
 
 -- |
 -- Assert that an expression has a given type.
@@ -133,14 +133,14 @@ assert expected expression = do
 -- |
 -- Replace variables bound by forall with fresh unknowns.
 instantiate :: MonadState State m => Type -> m Type
-instantiate = refresh (UnknownType <$> freshUnknown)
+instantiate = refresh (fmap UnknownType . freshUnknown)
 
 -- |
 -- Replace variables bound by forall with fresh Skolems.
 skolemize :: MonadState State m => Type -> m Type
-skolemize = refresh (SkolemType <$> freshSkolem)
+skolemize = refresh (fmap SkolemType . freshSkolem)
 
-refresh :: forall m. MonadState State m => m Type -> Type -> m Type
+refresh :: forall m. MonadState State m => (Maybe Name -> m Type) -> Type -> m Type
 refresh fresh = go HashMap.empty
   where
   go :: HashMap Name Type -> Type -> m Type
@@ -151,8 +151,9 @@ refresh fresh = go HashMap.empty
     function' <- go s function
     argument' <- go s argument
     pure $ ApplicationType function' argument'
-  go s (ForallType parameter body) =
-    do { t <- fresh; go (s & at parameter ?~ t) body }
+  go s (ForallType parameter body) = do
+    t <- fresh (Just parameter)
+    go (s & at parameter ?~ t) body
 
 --------------------------------------------------------------------------------
 

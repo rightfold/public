@@ -16,19 +16,19 @@ import Granite.Common.Name (Name)
 -- |
 -- A unique identifier for an unknown type. Unknown types are generated using
 -- type inference, to be unified later.
-newtype Unknown =
-  Unknown Word
-  deriving stock (Eq, Ord, Show)
-  deriving newtype (Hashable)
+data Unknown =
+  Unknown Word (Maybe Name)
+  deriving stock (Eq, Ord, Generic, Show)
+  deriving anyclass (Hashable)
 
 -- |
 -- A unique identifier for a Skolem. A Skolem is a type that is bound by a
 -- universal quantifier and therefore completely opaque. Unifies only with
 -- itself.
-newtype Skolem =
-  Skolem Word
-  deriving stock (Eq, Ord, Show)
-  deriving newtype (Hashable)
+data Skolem =
+  Skolem Word (Maybe Name)
+  deriving stock (Eq, Ord, Generic, Show)
+  deriving anyclass (Hashable)
 
 -- |
 -- A type. Different from @'Granite.Behavioral.Abstract.Expression' 1@ in that
