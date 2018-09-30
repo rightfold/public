@@ -32,8 +32,8 @@ import qualified Data.HashMap.Strict as HashMap
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
-import Granite.Behavioral.Type (Skolem (..), Type (..), Unknown (..), typeFromExpression)
-import Granite.Common.Name (Infix (..), Name (..))
+import Granite.Behavioral.Type (pattern FunctionType, Skolem (..), Type (..), Unknown (..), typeFromExpression)
+import Granite.Common.Name (Name (..))
 import Granite.Common.Position (Position)
 
 import qualified Granite.Behavioral.Constraint as ConstraintSet
@@ -102,7 +102,7 @@ infer (Expression position payload) = case payload of
     parameterType <- UnknownType <$> freshUnknown Nothing
     returnType <- UnknownType <$> freshUnknown Nothing
 
-    insertTypeEquality functionType (makeFunctionType parameterType returnType)
+    insertTypeEquality functionType (FunctionType parameterType returnType)
     insertTypeEquality argumentType parameterType
 
     pure returnType
@@ -111,7 +111,7 @@ infer (Expression position payload) = case payload of
     parameterType <- UnknownType <$> freshUnknown (Just parameter)
     let localize = envVariables . at parameter ?~ parameterType
     returnType <- Reader.local localize $ infer body
-    pure $ makeFunctionType parameterType returnType
+    pure $ FunctionType parameterType returnType
 
   ForeignExpression _ type_ -> do
     instantiate (typeFromExpression type_)
@@ -156,11 +156,6 @@ refresh fresh = go HashMap.empty
     go (s & at parameter ?~ t) body
 
 --------------------------------------------------------------------------------
-
-makeFunctionType :: Type -> Type -> Type
-makeFunctionType parameterType returnType =
-  ApplicationType (ApplicationType (VariableType arrow) parameterType) returnType
-  where arrow = InfixName InfixHyphenGreater
 
 insertTypeEquality :: MonadState State m => Type -> Type -> m ()
 insertTypeEquality typeA typeB =

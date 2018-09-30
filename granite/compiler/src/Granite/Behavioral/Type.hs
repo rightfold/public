@@ -1,17 +1,26 @@
 -- |
 -- Types.
 module Granite.Behavioral.Type
-  ( Unknown (..)
+  ( -- * Types
+    Unknown (..)
   , Skolem (..)
   , Type (..)
+
+    -- * Translating from AST
   , typeFromExpression
+
+    -- * Constants
+  , pattern FunctionType
   ) where
 
 import Data.Hashable (Hashable)
 import GHC.Generics (Generic)
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
-import Granite.Common.Name (Name)
+import Granite.Common.Name (Infix (..), Name (..))
+
+--------------------------------------------------------------------------------
+-- Types
 
 -- |
 -- A unique identifier for an unknown type. Unknown types are generated using
@@ -42,6 +51,9 @@ data Type
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)
 
+--------------------------------------------------------------------------------
+-- Translating from AST
+
 -- |
 -- Translate an expression in the universe of types into a type.
 typeFromExpression :: Expression 1 -> Type
@@ -58,3 +70,14 @@ typeFromExpression (Expression _ payload) = case payload of
   ForallExpression parameter body ->
     let body' = typeFromExpression body in
     ForallType parameter body'
+
+--------------------------------------------------------------------------------
+-- Constants
+
+pattern FunctionType :: Type -> Type -> Type
+pattern FunctionType t1 t2 =
+  ApplicationType
+    (ApplicationType
+      (VariableType (InfixName InfixHyphenGreater))
+      t1)
+    t2
