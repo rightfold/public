@@ -96,19 +96,19 @@ buildRts :: MonadModuleBuilder m => m Rts
 buildRts = do
   constructLambda <-
     IRB.extern
-      (IR.Name "A")
+      (IR.Name "_ZN3gra15constructLambdaERNS_4heapEPFPNS_5valueES1_S3_S3_EPS3_m")
       [heapType, lambdaCodeType, IR.ptr valueType, IR.i64]
       valueType
 
   callLambda <-
     IRB.extern
-      (IR.Name "B")
+      (IR.Name "_ZN3gra10callLambdaERNS_4heapEPNS_5valueES3_")
       [heapType, valueType, valueType]
       valueType
 
   valuePointers <-
     IRB.extern
-      (IR.Name "C")
+      (IR.Name "_ZN3gra5value8pointersEv")
       [valueType]
       (IR.ptr valueType)
 
