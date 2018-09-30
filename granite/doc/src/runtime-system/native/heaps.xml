@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
-<section xmlns="http://docbook.org/ns/docbook">
-    <?dbhtml filename="granite-runtime-system-native-heaps.html" ?>
+<section
+    xmlns="http://docbook.org/ns/docbook"
+    xml:id="granite-runtime-system-native-heaps"
+>
     <title>Heaps</title>
 </section>

@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
-<section xmlns="http://docbook.org/ns/docbook">
-    <?dbhtml filename="granite-runtime-system-native-values.html" ?>
+<section
+    xmlns="http://docbook.org/ns/docbook"
+    xml:id="granite-runtime-system-native-values"
+>
     <title>Values</title>
     <section>
         <para>
@@ -12,8 +14,7 @@
             is included in the value.
         </para>
     </section>
-    <section>
-        <?dbhtml filename="lambdas.html" ?>
+    <section xml:id="granite-runtime-system-native-values-lambdas">
         <title>Lambdas</title>
         <para>
             The array of pointers of a lambda

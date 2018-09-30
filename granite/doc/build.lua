@@ -24,6 +24,7 @@ genrule {
         xsltproc                                                            \
             --xinclude                                                      \
             --stringparam html.stylesheet stylesheet.css                    \
+            --stringparam use.id.as.filename 1                              \
             "$DOCBOOK_XSLT"                                                 \
             "$(loc +granite/doc/src/index.xml)"
 

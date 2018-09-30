@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
-<section xmlns="http://docbook.org/ns/docbook">
-    <?dbhtml filename="granite-runtime-system-native-globals.html" ?>
+<section
+    xmlns="http://docbook.org/ns/docbook"
+    xml:id="granite-runtime-system-native-globals"
+>
     <title>Globals</title>
     <para>
         For each global value definition,

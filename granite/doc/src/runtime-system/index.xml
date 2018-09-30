@@ -2,8 +2,8 @@
 <part
     xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
+    xml:id="granite-runtime-system"
 >
-    <?dbhtml filename="granite-runtime-system.html" ?>
     <title>Runtime system</title>
     <xi:include href="native/index.xml" />
 </part>
