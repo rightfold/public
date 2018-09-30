@@ -29,7 +29,9 @@ import LLVM.IRBuilder (MonadIRBuilder, MonadModuleBuilder)
 import qualified Data.ByteString.Char8 as BS.C8
 import qualified Data.ByteString.Short as BS.S
 import qualified Data.HashMap.Strict as HashMap
+import qualified LLVM.AST.Constant as IR
 import qualified LLVM.AST.Name as IR
+import qualified LLVM.AST.Operand as IR
 import qualified LLVM.AST.Type as IR
 import qualified LLVM.IRBuilder as IRB
 
@@ -146,7 +148,8 @@ buildExpression (Expression position payload) = case payload of
         buildLambdaBody args
 
   ForeignExpression source type_ ->
-    undefined
+    -- TODO: Implement foreign expressions.
+    pure (IR.ConstantOperand (IR.Null valueType))
 
 --------------------------------------------------------------------------------
 -- Globals
