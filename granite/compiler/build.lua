@@ -55,6 +55,7 @@ local function haskell_module(rule)
     table.insert(args, [[-XScopedTypeVariables]])
     table.insert(args, [[-XStandaloneDeriving]])
     table.insert(args, [[-XStrictData]])
+    table.insert(args, [[-XTupleSections]])
     table.insert(args, [[-XTypeOperators]])
 
     table.insert(args, [[-Wall]])
