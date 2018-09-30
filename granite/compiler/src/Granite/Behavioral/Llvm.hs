@@ -116,7 +116,10 @@ buildExpression (Expression position payload) = case payload of
     name <- freshLambdaName
     impl <- IRB.function (IR.Name name) lambdaParams valueType $
               \[heap, self, argument] ->
-                undefined -- TODO: Build body.
+                -- TODO: Ensure entry basic block.
+                -- TODO: Set up new environment.
+                -- TODO: Generate ret instruction.
+                undefined
 
     -- Construct lambda value.
     buildLambdaConstruction impl (snd <$> captures)
