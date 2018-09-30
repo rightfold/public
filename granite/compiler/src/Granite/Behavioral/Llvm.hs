@@ -5,6 +5,7 @@
 module Granite.Behavioral.Llvm
   ( -- * Infrastructure
     Error (..)
+  , Rts (..)
   , Environment (..)
   , State
 
@@ -44,11 +45,22 @@ data Variable
   = Local Operand
   | Global Operand
 
+data Rts =
+  Rts
+    { _rtsCallLambda :: Operand }
+$(makeLenses ''Rts)
+
 data Environment =
   Environment
     { -- |
       -- The variables that are in scope, with their corresponding LLVM values.
       _envVariables :: HashMap Name Variable
+
+      -- |
+      -- The heap to use for memory management.
+    , _envHeap :: Operand
+
+    , _envRts :: Rts
 
       -- |
       -- The prefix to use for names of lambda implementations.
@@ -104,13 +116,20 @@ buildExpression (Expression position payload) = case payload of
 
 -- |
 -- Build an expression that gets a global.
-buildGlobalGet :: Operand -> m Operand
-buildGlobalGet = undefined
+buildGlobalGet :: (MonadReader Environment m, MonadIRBuilder m)
+               => Operand -> m Operand
+buildGlobalGet global = do
+  heap <- view envHeap
+  IRB.call global [(heap, [])]
 
 -- |
 -- Build a call to a lambda.
-buildLambdaCall :: Operand -> Operand -> m Operand
-buildLambdaCall = undefined
+buildLambdaCall :: (MonadReader Environment m, MonadIRBuilder m)
+                => Operand -> Operand -> m Operand
+buildLambdaCall function argument = do
+  graRtsCallLambda <- view (envRts . rtsCallLambda)
+  heap <- view envHeap
+  IRB.call graRtsCallLambda ((, []) <$> [heap, function, argument])
 
 -- |
 -- Parameters of lambdas.
