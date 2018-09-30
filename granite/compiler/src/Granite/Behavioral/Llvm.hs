@@ -5,12 +5,18 @@
 module Granite.Behavioral.Llvm
   ( -- * Infrastructure
     Error (..)
+  , Variable (..)
   , Rts (..)
   , Environment (..)
-  , State
+  , State (..)
 
     -- * Building
+  , buildRts
   , buildExpression
+
+    -- * Types
+  , heapType
+  , valueType
   ) where
 
 import Control.Lens ((^.), (<<%=), at, makeLenses, to, view)
@@ -82,6 +88,31 @@ freshLambdaName = do
 
 --------------------------------------------------------------------------------
 -- Building
+
+buildRts :: MonadModuleBuilder m => m Rts
+buildRts = do
+  constructLambda <-
+    IRB.extern
+      (IR.Name "A")
+      [heapType, lambdaCodeType, IR.ptr valueType, IR.i64]
+      valueType
+
+  callLambda <-
+    IRB.extern
+      (IR.Name "B")
+      [heapType, valueType, valueType]
+      valueType
+
+  valuePointers <-
+    IRB.extern
+      (IR.Name "C")
+      [valueType]
+      (IR.ptr valueType)
+
+  pure $ Rts { _rtsConstructLambda = constructLambda
+             , _rtsCallLambda      = callLambda
+             , _rtsValuePointers   = valuePointers }
+
 
 -- |
 -- Build an expression, returning its result.
@@ -270,6 +301,12 @@ heapType = IR.ptr (IR.IntegerType 8)
 -- Type of values.
 valueType :: IR.Type
 valueType = IR.ptr (IR.IntegerType 8)
+
+-- |
+-- Type of pointers to lambda code.
+lambdaCodeType :: IR.Type
+lambdaCodeType = IR.ptr (IR.FunctionType valueType params False)
+                   where params = [heapType, valueType, valueType]
 
 --------------------------------------------------------------------------------
 

@@ -4,9 +4,11 @@ module Main
 
 import Control.Applicative ((<**>), many)
 import Control.Monad (join)
+import Control.Monad.Trans.Except (runExcept)
 import Data.Foldable (fold)
 
 import qualified Data.Text.IO as Text
+import qualified LLVM.IRBuilder as IRB
 import qualified Options.Applicative as Opt
 import qualified Text.Parsec as Parser
 
@@ -14,6 +16,8 @@ import Granite.Organizational.Abstract (Definition)
 import Granite.Organizational.Interface (collectInterface)
 import Granite.Organizational.TypeCheck (typeCheckImplementation)
 
+import qualified Granite.Behavioral.Llvm as Llvm
+import qualified Granite.Organizational.Llvm as Llvm
 import qualified Granite.Organizational.Parse as Parse
 
 data Config =
@@ -43,14 +47,22 @@ main = do
     Opt.info (configParser <**> Opt.helper) $
       fold [ Opt.fullDesc ]
 
-  interfaceASTs      <- traverse parse (configInterfaceFiles config)
-  implementationASTs <- traverse parse (configImplementationFiles config)
+  interfaceAST      <- join <$> traverse parse (configInterfaceFiles config)
+  implementationAST <- join <$> traverse parse (configImplementationFiles config)
 
   interface <- either (fail . show) pure $
-                 collectInterface (join interfaceASTs)
+                 collectInterface interfaceAST
 
   () <- either (fail . show) pure $
-          typeCheckImplementation interface (join implementationASTs)
+          typeCheckImplementation interface implementationAST
+
+  ((), llvmDefinitions) <- either (fail . show) pure $
+    runExcept . IRB.runModuleBuilderT IRB.emptyModuleBuilder $ do
+      rts <- Llvm.buildRts
+      globals <- Llvm.buildInterface interfaceAST
+      Llvm.buildImplementation rts globals implementationAST
+
+  print llvmDefinitions
 
   pure ()
 

@@ -225,6 +225,17 @@ haskell_module {
 }
 
 haskell_module {
+    name = "Granite.Organizational.Llvm",
+    imports = {
+        "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Llvm",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+        "Granite.Organizational.Abstract",
+    },
+}
+
+haskell_module {
     name = "Granite.Organizational.Parse",
     imports = {
         "Granite.Behavioral.Abstract",
@@ -254,10 +265,14 @@ haskell_module {
     name = "Main",
     imports = {
         "Granite.Behavioral.Llvm",
+        "Granite.Behavioral.Type",
         "Granite.Behavioral.TypeCheck",
         "Granite.Behavioral.Unify",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
         "Granite.Organizational.Abstract",
         "Granite.Organizational.Interface",
+        "Granite.Organizational.Llvm",
         "Granite.Organizational.Parse",
         "Granite.Organizational.TypeCheck",
     },
@@ -272,6 +287,7 @@ do
 
     table.insert(args, [[-package]]); table.insert(args, [[hashable]])
     table.insert(args, [[-package]]); table.insert(args, [[lens]])
+    table.insert(args, [[-package]]); table.insert(args, [[llvm-hs-pure]])
     table.insert(args, [[-package]]); table.insert(args, [[optparse-applicative]])
     table.insert(args, [[-package]]); table.insert(args, [[parsec]])
     table.insert(args, [[-package]]); table.insert(args, [[unordered-containers]])
