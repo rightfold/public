@@ -309,6 +309,7 @@ do
 
     table.insert(args, [[-package]]); table.insert(args, [[hashable]])
     table.insert(args, [[-package]]); table.insert(args, [[lens]])
+    table.insert(args, [[-package]]); table.insert(args, [[llvm-hs]])
     table.insert(args, [[-package]]); table.insert(args, [[llvm-hs-pure]])
     table.insert(args, [[-package]]); table.insert(args, [[optparse-applicative]])
     table.insert(args, [[-package]]); table.insert(args, [[parsec]])

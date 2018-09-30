@@ -7,8 +7,12 @@ import Control.Monad (join)
 import Control.Monad.Trans.Except (runExcept)
 import Data.Foldable (fold)
 
+import qualified Data.ByteString as BS
 import qualified Data.Text.IO as Text
+import qualified LLVM.AST as IR
+import qualified LLVM.Context as LLVM
 import qualified LLVM.IRBuilder as IRB
+import qualified LLVM.Module as LLVM
 import qualified Options.Applicative as Opt
 import qualified Text.Parsec as Parser
 
@@ -62,7 +66,11 @@ main = do
       globals <- Llvm.buildInterface interfaceAST
       Llvm.buildImplementation rts globals implementationAST
 
-  print llvmDefinitions
+  let llvmModule = IR.defaultModule { IR.moduleDefinitions = llvmDefinitions }
+
+  LLVM.withContext $ \llvmContext ->
+    LLVM.withModuleFromAST llvmContext llvmModule $ \llvmModule' ->
+      BS.putStr =<< LLVM.moduleLLVMAssembly llvmModule'
 
   pure ()
 
