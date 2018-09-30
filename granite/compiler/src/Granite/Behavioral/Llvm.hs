@@ -13,19 +13,22 @@ module Granite.Behavioral.Llvm
   , buildExpression
   ) where
 
-import Control.Lens ((<<%=), at, makeLenses, view)
+import Control.Lens ((<<%=), at, makeLenses, to, view)
 import Control.Monad.Error.Class (MonadError, throwError)
 import Control.Monad.Reader.Class (MonadReader)
 import Control.Monad.State.Class (MonadState)
 import Data.ByteString.Short (ShortByteString)
+import Data.Foldable (for_)
 import Data.HashMap.Strict (HashMap)
+import Data.List (genericLength)
 import LLVM.AST (Operand)
 import LLVM.IRBuilder (MonadIRBuilder, MonadModuleBuilder)
 
 import qualified Data.ByteString.Char8 as BS.C8
 import qualified Data.ByteString.Short as BS.S
-import qualified LLVM.AST as IR
-import qualified LLVM.AST.AddrSpace as IR
+import qualified Data.HashMap.Strict as HashMap
+import qualified LLVM.AST.Name as IR
+import qualified LLVM.AST.Type as IR
 import qualified LLVM.IRBuilder as IRB
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
@@ -47,7 +50,8 @@ data Variable
 
 data Rts =
   Rts
-    { _rtsCallLambda :: Operand }
+    { _rtsConstructLambda :: Operand
+    , _rtsCallLambda      :: Operand }
 $(makeLenses ''Rts)
 
 data Environment =
@@ -105,14 +109,23 @@ buildExpression (Expression position payload) = case payload of
     buildLambdaCall function' argument'
 
   LambdaExpression parameter body -> do
+    -- Retrieve used infrastructure.
+    captures <- view (envVariables . to lambdaCaptures)
+
+    -- Define lambda implementation.
     name <- freshLambdaName
     impl <- IRB.function (IR.Name name) lambdaParams valueType $
               \[heap, self, argument] ->
                 undefined -- TODO: Build body.
-    undefined -- TODO: Build closure.
+
+    -- Construct lambda value.
+    buildLambdaConstruction impl (snd <$> captures)
 
   ForeignExpression source type_ ->
     undefined
+
+--------------------------------------------------------------------------------
+-- Globals
 
 -- |
 -- Build an expression that gets a global.
@@ -121,6 +134,35 @@ buildGlobalGet :: (MonadReader Environment m, MonadIRBuilder m)
 buildGlobalGet global = do
   heap <- view envHeap
   IRB.call global [(heap, [])]
+
+--------------------------------------------------------------------------------
+-- Lambdas
+
+-- |
+-- Build a construction of a lambda given its implementation and captured
+-- values.
+buildLambdaConstruction :: ( MonadReader Environment m
+                           , MonadIRBuilder m
+                           , MonadModuleBuilder m )
+                        => Operand -> [Operand] -> m Operand
+buildLambdaConstruction impl captures = do
+  -- Retrieve used infrastructure.
+  graRtsConstructLambda <- view (envRts . rtsConstructLambda)
+  heap <- view envHeap
+
+  -- Allocate array of captures.
+  let { captureCount :: Integral a => a; captureCount = genericLength captures }
+  captures' <- IRB.alloca (IR.ArrayType captureCount valueType) Nothing autoAlign
+  captureCount' <- IRB.int64 captureCount
+
+  -- Initialize array of captures.
+  for_ (captures `zip` [0 ..]) $ \(capture, i) -> do
+    addr <- IRB.gep captures' =<< sequence [IRB.int64 0, IRB.int64 i]
+    IRB.store addr autoAlign capture
+
+  -- Generate call.
+  captures'' <- IRB.gep captures' =<< sequence [IRB.int64 0, IRB.int64 0]
+  IRB.call graRtsConstructLambda ((, []) <$> [heap, impl, captures'', captureCount'])
 
 -- |
 -- Build a call to a lambda.
@@ -137,11 +179,27 @@ lambdaParams :: [(IR.Type, IRB.ParameterName)]
 lambdaParams = (, IRB.NoParameterName) <$> [heapType, valueType, valueType]
 
 -- |
+-- Captures of a lambda. The returned operands are those at the lambda
+-- construction site, not those inside the lambda body.
+lambdaCaptures :: HashMap Name Variable -> [(Name, Operand)]
+lambdaCaptures vs = [ (n, o) | (n, Local o) <- HashMap.toList vs ]
+
+--------------------------------------------------------------------------------
+-- Types
+
+-- |
 -- Type of heaps.
 heapType :: IR.Type
-heapType = IR.PointerType (IR.IntegerType 8) (IR.AddrSpace 0)
+heapType = IR.ptr (IR.IntegerType 8)
 
 -- |
 -- Type of values.
 valueType :: IR.Type
-valueType = IR.PointerType (IR.IntegerType 8) (IR.AddrSpace 0)
+valueType = IR.ptr (IR.IntegerType 8)
+
+--------------------------------------------------------------------------------
+
+-- |
+-- Some functions from IRB take alignment. 0 means automatic.
+autoAlign :: Integral a => a
+autoAlign = 0
