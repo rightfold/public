@@ -4,13 +4,13 @@ genrule {
         ":docbook",
         ":tar",
         ":xsltproc",
-        "+granite/doc/compiler/index.xml",
-        "+granite/doc/index.xml",
-        "+granite/doc/runtime-system/index.xml",
-        "+granite/doc/runtime-system/native/globals.xml",
-        "+granite/doc/runtime-system/native/heaps.xml",
-        "+granite/doc/runtime-system/native/index.xml",
-        "+granite/doc/runtime-system/native/values.xml",
+        "+granite/doc/src/compiler/index.xml",
+        "+granite/doc/src/index.xml",
+        "+granite/doc/src/runtime-system/index.xml",
+        "+granite/doc/src/runtime-system/native/globals.xml",
+        "+granite/doc/src/runtime-system/native/heaps.xml",
+        "+granite/doc/src/runtime-system/native/index.xml",
+        "+granite/doc/src/runtime-system/native/values.xml",
     },
     outputs = { "@granite-doc.tar" },
     command = [[
@@ -21,7 +21,7 @@ genrule {
         xsltproc                                                            \
             --xinclude                                                      \
             "$DOCBOOK_XSLT"                                                 \
-            "$(loc +granite/doc/index.xml)"
+            "$(loc +granite/doc/src/index.xml)"
 
         tar cf "$(loc @granite-doc.tar)" *.html
     ]],
