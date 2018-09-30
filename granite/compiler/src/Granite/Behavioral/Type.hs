@@ -6,8 +6,9 @@ module Granite.Behavioral.Type
   , Skolem (..)
   , Type (..)
 
-    -- * Translating from AST
+    -- * Manipulation
   , typeFromExpression
+  , dissectFunctionType
 
     -- * Constants
   , pattern FunctionType
@@ -52,7 +53,7 @@ data Type
   deriving anyclass (Hashable)
 
 --------------------------------------------------------------------------------
--- Translating from AST
+-- Manipulation
 
 -- |
 -- Translate an expression in the universe of types into a type.
@@ -70,6 +71,15 @@ typeFromExpression (Expression _ payload) = case payload of
   ForallExpression parameter body ->
     let body' = typeFromExpression body in
     ForallType parameter body'
+
+-- |
+-- Take a type, and return its parameter types and return type. The list of
+-- parameter types may be empty; namely if this is not a function type.
+dissectFunctionType :: Type -> ([Type], Type)
+dissectFunctionType (FunctionType first ret) =
+  let (rest, ret') = dissectFunctionType ret in
+  (first : rest, ret')
+dissectFunctionType t = ([], t)
 
 --------------------------------------------------------------------------------
 -- Constants
