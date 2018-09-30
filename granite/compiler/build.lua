@@ -286,6 +286,7 @@ haskell_module {
 haskell_module {
     name = "Main",
     imports = {
+        "Granite.Behavioral.Abstract",
         "Granite.Behavioral.Llvm",
         "Granite.Behavioral.Type",
         "Granite.Behavioral.TypeCheck",

@@ -289,7 +289,8 @@ buildLambdaCapturesToLocals :: (MonadIRBuilder m, MonadModuleBuilder m)
 buildLambdaCapturesToLocals rts captures self = do
   pointers <- IRB.call (rts ^. rtsValuePointers) [(self, [])]
   for (captures `zip` [0 ..]) $ \(capture, i) -> do
-    pointer <- IRB.gep pointers =<< sequence [IRB.int64 i]
+    pointerPointer <- IRB.gep pointers =<< sequence [IRB.int64 i]
+    pointer <- IRB.load pointerPointer autoAlign
     pure (capture, Local pointer)
 
 --------------------------------------------------------------------------------

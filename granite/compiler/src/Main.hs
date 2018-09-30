@@ -13,6 +13,7 @@ import qualified LLVM.AST as IR
 import qualified LLVM.Context as LLVM
 import qualified LLVM.IRBuilder as IRB
 import qualified LLVM.Module as LLVM
+import qualified LLVM.Target as LLVM
 import qualified Options.Applicative as Opt
 import qualified Text.Parsec as Parser
 
@@ -69,8 +70,10 @@ main = do
   let llvmModule = IR.defaultModule { IR.moduleDefinitions = llvmDefinitions }
 
   LLVM.withContext $ \llvmContext ->
-    LLVM.withModuleFromAST llvmContext llvmModule $ \llvmModule' ->
+    LLVM.withModuleFromAST llvmContext llvmModule $ \llvmModule' -> do
       BS.putStr =<< LLVM.moduleLLVMAssembly llvmModule'
+      LLVM.withHostTargetMachine $ \target ->
+        BS.writeFile "/tmp/test.o" =<< LLVM.moduleObject target llvmModule'
 
   pure ()
 

@@ -8,6 +8,9 @@ module Granite.Organizational.Llvm
     -- * Building
   , buildInterface
   , buildImplementation
+
+    -- * Types
+  , globalType
   ) where
 
 import Control.Monad.Error.Class (MonadError)
@@ -21,7 +24,9 @@ import LLVM.IRBuilder (MonadIRBuilder, MonadModuleBuilder)
 
 import qualified Data.ByteString.Short as BS.S
 import qualified Data.HashMap.Strict as HashMap
+import qualified LLVM.AST.Constant as IR
 import qualified LLVM.AST.Name as IR
+import qualified LLVM.AST.Operand as IR
 import qualified LLVM.AST.Type as IR
 import qualified LLVM.IRBuilder as IRB
 
@@ -41,9 +46,9 @@ buildInterface = fmap (HashMap.fromList . fold) . traverse buildInterface'
 buildInterface' :: (MonadModuleBuilder m) => Definition -> m [(Name, Operand)]
 buildInterface' (Definition _ payload) = case payload of
 
-  ValueDefinition name (Just _) _ -> do
-    let name' = mangleGraniteName name
-    global <- IRB.extern (IR.Name name') (fst <$> globalParams) valueType
+  ValueDefinition name (Just _) _ ->
+    let name' = mangleGraniteName name in
+    let global = IR.ConstantOperand (IR.GlobalReference globalType (IR.Name name')) in
     pure [(name, global)]
 
   ValueDefinition _ Nothing _ ->
@@ -84,6 +89,16 @@ buildImplementation' rts globals (Definition _ payload) = case payload of
   ValueDefinition _ _ Nothing ->
     pure ()
 
+--------------------------------------------------------------------------------
+-- Types
+
+-- |
+-- Type of a pointer to a global.
+globalType :: IR.Type
+globalType = IR.ptr (IR.FunctionType valueType [heapType] False)
+
+-- |
+-- Parameters of a global.
 globalParams :: [(IR.Type, IRB.ParameterName)]
 globalParams = [(heapType, IRB.NoParameterName)]
 
