@@ -10,10 +10,13 @@ nixpkgs [[
 
 require "support/avr-gcc"
 require "support/binutils"
+require "support/docbook"
 require "support/gcc"
 require "support/make"
 require "support/perl"
+require "support/tar"
 require "support/verilator"
+require "support/xsltproc"
 
 require "cpu/build"
 require "granite/build"

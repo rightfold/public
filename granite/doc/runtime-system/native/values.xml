@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<section xmlns="http://docbook.org/ns/docbook">
+    <?dbhtml filename="granite-runtime-system-native-values.html" ?>
+    <title>Values</title>
+    <section>
+        <para>
+            In the runtime system,
+            values consist of two parts:
+            an array of pointers
+            and an auxiliary part.
+            The size of each part
+            is included in the value.
+        </para>
+    </section>
+    <section>
+        <?dbhtml filename="lambdas.html" ?>
+        <title>Lambdas</title>
+        <para>
+            The array of pointers of a lambda
+            stores the captured values of the lambda.
+            The auxiliary part of a lambda
+            stores a function pointer
+            to the implementation of the lambda.
+        </para>
+        <para>
+            The implementation of a lambda
+            receives the lambda itself,
+            not just the argument.
+            This allows the lambda
+            to access its captured values.
+            The implementation of a lambda
+            has the following signature:
+            <funcsynopsis>
+                <?dbhtml funcsynopsis-style="ansi" ?>
+                <funcprototype>
+                    <funcdef>graRtsValue *<function>graRtsLambdaCode</function></funcdef>
+                    <paramdef>graRtsHeap *<parameter>heap</parameter></paramdef>
+                    <paramdef>graRtsValue *<parameter>lambda</parameter></paramdef>
+                    <paramdef>graRtsValue *<parameter>argument</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+        </para>
+    </section>
+</section>

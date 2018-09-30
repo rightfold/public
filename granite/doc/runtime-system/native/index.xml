@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<chapter
+    xmlns="http://docbook.org/ns/docbook"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+>
+    <?dbhtml filename="granite-runtime-system-native.html" ?>
+    <title>Native</title>
+    <section>
+        <para>
+            The native runtime system
+            is used for programs
+            that are compiled
+            with the native code generator.
+        </para>
+    </section>
+    <xi:include href="heaps.xml" />
+    <xi:include href="values.xml" />
+</chapter>

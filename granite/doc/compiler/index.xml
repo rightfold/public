@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<part xmlns="http://docbook.org/ns/docbook">
+    <?dbhtml filename="granite-compiler.html" ?>
+    <title>Compiler</title>
+</part>
