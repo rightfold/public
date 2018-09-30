@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<section xmlns="http://docbook.org/ns/docbook">
+    <?dbhtml filename="granite-runtime-system-native-globals.html" ?>
+    <title>Globals</title>
+    <para>
+        For each global value definition,
+        a function is generated
+        that takes a heap as argument.
+        This function is called
+        whenever the global is referenced.
+        This allows cyclic dependencies
+        between global value definitions
+        and works with the multiple heap system.
+        The signature for a global value definition
+        is as follows:
+        <funcsynopsis>
+            <?dbhtml funcsynopsis-style="ansi" ?>
+            <funcprototype>
+                <funcdef>graRtsValue *<function>graRtsGlobalCode</function></funcdef>
+                <paramdef>graRtsHeap *<parameter>heap</parameter></paramdef>
+            </funcprototype>
+        </funcsynopsis>
+    </para>
+</section>

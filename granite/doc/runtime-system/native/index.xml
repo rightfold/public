@@ -14,5 +14,6 @@
         </para>
     </section>
     <xi:include href="heaps.xml" />
+    <xi:include href="globals.xml" />
     <xi:include href="values.xml" />
 </chapter>

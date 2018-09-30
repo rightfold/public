@@ -7,6 +7,7 @@ genrule {
         "+granite/doc/compiler/index.xml",
         "+granite/doc/index.xml",
         "+granite/doc/runtime-system/index.xml",
+        "+granite/doc/runtime-system/native/globals.xml",
         "+granite/doc/runtime-system/native/heaps.xml",
         "+granite/doc/runtime-system/native/index.xml",
         "+granite/doc/runtime-system/native/values.xml",
