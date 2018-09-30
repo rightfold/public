@@ -4,6 +4,9 @@ genrule {
         ":docbook",
         ":tar",
         ":xsltproc",
+
+        "+granite/doc/src/stylesheet.css",
+
         "+granite/doc/src/compiler/index.xml",
         "+granite/doc/src/index.xml",
         "+granite/doc/src/runtime-system/index.xml",
@@ -20,9 +23,11 @@ genrule {
 
         xsltproc                                                            \
             --xinclude                                                      \
+            --stringparam html.stylesheet stylesheet.css                    \
             "$DOCBOOK_XSLT"                                                 \
             "$(loc +granite/doc/src/index.xml)"
 
-        tar cf "$(loc @granite-doc.tar)" *.html
+        cp "$(loc +granite/doc/src/stylesheet.css)" stylesheet.css
+        tar cf "$(loc @granite-doc.tar)" *.html stylesheet.css
     ]],
 }
