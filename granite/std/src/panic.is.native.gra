@@ -1,1 +1,1 @@
-value PANIC is foreign "graRtsPanic" of forall a. u8Array -> a;
+value PANIC is foreign "gra::panic" of forall a. u8Array -> a;

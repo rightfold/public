@@ -2,7 +2,7 @@ local function translation_unit(rule)
     local inputs = { ":gcc" }
     local args = { }
 
-    table.insert(args, [[-std=c11]])
+    table.insert(args, [[-std=c++17]])
     table.insert(args, [[-Wall]])
     table.insert(args, [[-Wextra]])
     table.insert(args, [[-Wpedantic]])
@@ -33,39 +33,39 @@ end
 
 translation_unit {
     name = "heap",
-    source = "+granite/rts/native/src/heap.c",
+    source = "+granite/rts/native/src/heap.cpp",
     includes = {
-        "+granite/rts/native/src/heap.h",
-        "+granite/rts/native/src/value.h",
+        "+granite/rts/native/src/heap.hpp",
+        "+granite/rts/native/src/value.hpp",
     },
     output = "@heap.o",
 }
 
 translation_unit {
     name = "lambda",
-    source = "+granite/rts/native/src/lambda.c",
+    source = "+granite/rts/native/src/lambda.cpp",
     includes = {
-        "+granite/rts/native/src/heap.h",
-        "+granite/rts/native/src/lambda.h",
-        "+granite/rts/native/src/value.h",
+        "+granite/rts/native/src/heap.hpp",
+        "+granite/rts/native/src/lambda.hpp",
+        "+granite/rts/native/src/value.hpp",
     },
     output = "@lambda.o",
 }
 
 translation_unit {
     name = "panic",
-    source = "+granite/rts/native/src/panic.c",
+    source = "+granite/rts/native/src/panic.cpp",
     includes = {
-        "+granite/rts/native/src/panic.h",
+        "+granite/rts/native/src/panic.hpp",
     },
     output = "@panic.o",
 }
 
 translation_unit {
     name = "value",
-    source = "+granite/rts/native/src/value.c",
+    source = "+granite/rts/native/src/value.cpp",
     includes = {
-        "+granite/rts/native/src/value.h",
+        "+granite/rts/native/src/value.hpp",
     },
     output = "@value.o",
 }
