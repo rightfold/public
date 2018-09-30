@@ -2,14 +2,35 @@ nixrule {
     name = "granite-compiler-ghc",
     nixexpr = [[
         let
-            llvm-hs = fetchTarball {
-                url = "https://github.com/llvm-hs/llvm-hs/archive/llvm-hs-pure-7.0.0.tar.gz";
-                sha256 = "15gmynpvgd78v4rwzm2glcwajw2cjjnx1j33kq8kn3384bblkg3a";
+            llvm-hs-src = fetchTarball {
+                url = "https://github.com/llvm-hs/llvm-hs/archive/llvm-hs-6.3.0.tar.gz";
+                sha256 = "0g9154n15fmscpmry9m4zr1labjyq40kqrlg0347g9wqfrwjnpmz";
+            };
+            llvm-hs = p: p.mkDerivation {
+                pname = "llvm-hs";
+                version = "6.3.0";
+                src = llvm-hs-src + "/llvm-hs";
+                libraryHaskellDepends = [
+                    (llvm-hs-pure p)
+                    p.QuickCheck
+                    p.attoparsec
+                    p.exceptions
+                    p.pretty-show
+                    p.tasty
+                    p.tasty-hunit
+                    p.tasty-quickcheck
+                    p.temporary
+                    p.utf8-string
+                ];
+                libraryToolDepends = [
+                    nixpkgs.llvm_6
+                ];
+                license = nixpkgs.stdenv.lib.licenses.bsd3;
             };
             llvm-hs-pure = p: p.mkDerivation {
                 pname = "llvm-hs-pure";
-                version = "7.0.0";
-                src = llvm-hs + "/llvm-hs-pure";
+                version = "6.2.1";
+                src = llvm-hs-src + "/llvm-hs-pure";
                 libraryHaskellDepends = [
                     p.attoparsec
                     p.fail
@@ -22,7 +43,8 @@ nixrule {
             };
         in
             nixpkgs.haskell.packages.ghc841.ghcWithPackages (p: [
-                (llvm-hs-pure p)
+                (llvm-hs p)
+                # (llvm-hs-pure p)
                 p.hashable
                 p.lens
                 p.optparse-applicative

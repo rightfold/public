@@ -45,6 +45,9 @@ import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
 import Granite.Common.Name (Name)
 import Granite.Common.Position (Position)
 
+-- TODO: Move this to a module with orphan instances.
+instance MonadModuleBuilder m => MonadModuleBuilder (IRB.IRBuilderT m)
+
 --------------------------------------------------------------------------------
 -- Infrastructure
 
