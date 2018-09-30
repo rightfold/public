@@ -10,8 +10,11 @@ nixpkgs [[
 
 require "support/avr-gcc"
 require "support/binutils"
+require "support/clang"
 require "support/docbook"
 require "support/gcc"
+require "support/libcxx"
+require "support/llvm"
 require "support/make"
 require "support/perl"
 require "support/tar"

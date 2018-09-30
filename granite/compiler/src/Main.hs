@@ -73,7 +73,7 @@ main = do
     LLVM.withModuleFromAST llvmContext llvmModule $ \llvmModule' -> do
       BS.putStr =<< LLVM.moduleLLVMAssembly llvmModule'
       LLVM.withHostTargetMachine $ \target ->
-        BS.writeFile "/tmp/test.o" =<< LLVM.moduleObject target llvmModule'
+        BS.writeFile "/tmp/test.bc" =<< LLVM.moduleBitcode llvmModule'
 
   pure ()
 

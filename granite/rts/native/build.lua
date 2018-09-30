@@ -1,7 +1,7 @@
 local cxx_objects = { }
 
 local function translation_unit(rule)
-    local inputs = { ":gcc" }
+    local inputs = { ":clang", ":libcxx" }
     local args = { }
 
     table.insert(args, [[-std=c++17]])
@@ -11,9 +11,12 @@ local function translation_unit(rule)
     table.insert(args, [[-Werror]])
 
     table.insert(args, [[-c]])
+    table.insert(args, [[-emit-llvm]])
 
     table.insert(args, [[-o]])
     table.insert(args, [["$(loc ]] .. rule.output .. [[)"]])
+
+    table.insert(args, [[-isystem"$(loc :libcxx include/c++/v1)"]])
 
     table.insert(inputs, rule.source)
     table.insert(args, [["$(loc ]] .. rule.source .. [[)"]])
@@ -27,8 +30,8 @@ local function translation_unit(rule)
         inputs = inputs,
         outputs = { rule.output },
         command = [[
-            export PATH="$PATH:$(loc :gcc bin)"
-            g++ ]] .. table.concat(args, " ") .. [[
+            export PATH="$PATH:$(loc :clang bin)"
+            clang++ ]] .. table.concat(args, " ") .. [[
         ]],
     }
 
@@ -44,7 +47,7 @@ translation_unit {
         "+granite/rts/native/src/heap.hpp",
         "+granite/rts/native/src/value.hpp",
     },
-    output = "@heap.o",
+    output = "@heap.bc",
 }
 
 translation_unit {
@@ -55,7 +58,7 @@ translation_unit {
         "+granite/rts/native/src/lambda.hpp",
         "+granite/rts/native/src/value.hpp",
     },
-    output = "@lambda.o",
+    output = "@lambda.bc",
 }
 
 translation_unit {
@@ -64,7 +67,7 @@ translation_unit {
     includes = {
         "+granite/rts/native/src/panic.hpp",
     },
-    output = "@panic.o",
+    output = "@panic.bc",
 }
 
 translation_unit {
@@ -73,17 +76,15 @@ translation_unit {
     includes = {
         "+granite/rts/native/src/value.hpp",
     },
-    output = "@value.o",
+    output = "@value.bc",
 }
 
 do
-    local inputs = { ":gcc" }
+    local inputs = { ":llvm" }
     local args = { }
 
-    table.insert(args, [[-shared]])
-
     table.insert(args, [[-o]])
-    table.insert(args, [["$(loc @libgraniterts.so)"]])
+    table.insert(args, [["$(loc @libgraniterts.bc)"]])
 
     for _, object in ipairs(cxx_objects) do
         table.insert(inputs, object)
@@ -93,10 +94,10 @@ do
     genrule {
         name = "granite-rts-native-lib",
         inputs = inputs,
-        outputs = { "@libgraniterts.so" },
+        outputs = { "@libgraniterts.bc" },
         command = [[
-            export PATH="$PATH:$(loc :gcc bin)"
-            g++ ]] .. table.concat(args, " ") .. [[
+            export PATH="$PATH:$(loc :llvm bin)"
+            llvm-link ]] .. table.concat(args, " ") .. [[
         ]],
     }
 end

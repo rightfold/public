@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
+__attribute__((always_inline))
 gra::value* gra::constructLambda(
     heap& heap,
     lambdaCode* code,
@@ -15,6 +16,7 @@ gra::value* gra::constructLambda(
     return lambda;
 }
 
+__attribute__((always_inline))
 gra::value* gra::callLambda(heap& heap, value* lambda, value* argument) {
     lambdaCode* code;
     std::memcpy(&code, lambda->auxiliary(), sizeof(code));
