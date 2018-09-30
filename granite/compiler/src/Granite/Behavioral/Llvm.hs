@@ -90,7 +90,7 @@ buildExpression (Expression position payload) = case payload of
   ApplicationExpression function argument -> do
     function' <- buildExpression function
     argument' <- buildExpression argument
-    buildCall function' argument'
+    buildLambdaCall function' argument'
 
   LambdaExpression parameter body -> do
     name <- freshLambdaName
@@ -103,16 +103,14 @@ buildExpression (Expression position payload) = case payload of
     undefined
 
 -- |
--- Build an expression that gets a global. Globals are defined as LLVM
--- functions that take only a heap as argument.
+-- Build an expression that gets a global.
 buildGlobalGet :: Operand -> m Operand
 buildGlobalGet = undefined
 
 -- |
--- Build a call. Callees take three arguments: a heap, the closure that is
--- called, and the argument that the closure is called with.
-buildCall :: Operand -> Operand -> m Operand
-buildCall = undefined
+-- Build a call to a lambda.
+buildLambdaCall :: Operand -> Operand -> m Operand
+buildLambdaCall = undefined
 
 -- |
 -- Parameters of lambdas.

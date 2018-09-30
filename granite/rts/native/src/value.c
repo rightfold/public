@@ -12,21 +12,21 @@ struct graRtsValue {
 ////////////////////////////////////////////////////////////////////////////////
 // Pointers
 
-uint64_t graRtsPointerCount(struct graRtsValue* v) {
+uint64_t graRtsPointerCount(graRtsValue* v) {
     return v->pointerCount;
 }
 
-struct graRtsValue **graRtsPointers(struct graRtsValue* v) {
+graRtsValue **graRtsPointers(graRtsValue* v) {
     return v->pointers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary
 
-uint64_t graRtsAuxiliarySize(struct graRtsValue* v) {
+uint64_t graRtsAuxiliarySize(graRtsValue* v) {
     return v->auxiliarySize;
 }
 
-void *graRtsAuxiliary(struct graRtsValue* v) {
+void *graRtsAuxiliary(graRtsValue* v) {
     return v->pointers + v->pointerCount;
 }

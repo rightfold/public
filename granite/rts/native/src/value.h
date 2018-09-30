@@ -5,16 +5,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Data type
 
-struct graRtsValue;
+typedef struct graRtsValue graRtsValue;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pointers
 
-uint64_t graRtsPointerCount(struct graRtsValue*);
-struct graRtsValue **graRtsPointers(struct graRtsValue*);
+uint64_t graRtsPointerCount(graRtsValue*);
+graRtsValue **graRtsPointers(graRtsValue*);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary
 
-uint64_t graRtsAuxiliarySize(struct graRtsValue*);
-void *graRtsAuxiliary(struct graRtsValue*);
+uint64_t graRtsAuxiliarySize(graRtsValue*);
+void *graRtsAuxiliary(graRtsValue*);
