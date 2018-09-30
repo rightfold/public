@@ -1,3 +1,5 @@
+local cxx_objects = { }
+
 local function translation_unit(rule)
     local inputs = { ":gcc" }
     local args = { }
@@ -26,9 +28,13 @@ local function translation_unit(rule)
         outputs = { rule.output },
         command = [[
             export PATH="$PATH:$(loc :gcc bin)"
-            gcc ]] .. table.concat(args, " ") .. [[
+            g++ ]] .. table.concat(args, " ") .. [[
         ]],
     }
+
+    local outputs = { }
+    parse_output_label(rule.output, outputs)
+    table.insert(cxx_objects, ":granite-rts-native-lib-" .. rule.name .. " " .. outputs[1])
 end
 
 translation_unit {
@@ -69,3 +75,28 @@ translation_unit {
     },
     output = "@value.o",
 }
+
+do
+    local inputs = { ":gcc" }
+    local args = { }
+
+    table.insert(args, [[-shared]])
+
+    table.insert(args, [[-o]])
+    table.insert(args, [["$(loc @libgraniterts.so)"]])
+
+    for _, object in ipairs(cxx_objects) do
+        table.insert(inputs, object)
+        table.insert(args, [["$(loc ]] .. object .. [[)"]])
+    end
+
+    genrule {
+        name = "granite-rts-native-lib",
+        inputs = inputs,
+        outputs = { "@libgraniterts.so" },
+        command = [[
+            export PATH="$PATH:$(loc :gcc bin)"
+            g++ ]] .. table.concat(args, " ") .. [[
+        ]],
+    }
+end
