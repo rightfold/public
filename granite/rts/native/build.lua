@@ -32,6 +32,16 @@ local function translation_unit(rule)
 end
 
 translation_unit {
+    name = "heap",
+    source = "+granite/rts/native/src/heap.c",
+    includes = {
+        "+granite/rts/native/src/heap.h",
+        "+granite/rts/native/src/value.h",
+    },
+    output = "@heap.o",
+}
+
+translation_unit {
     name = "lambda",
     source = "+granite/rts/native/src/lambda.c",
     includes = {
