@@ -1,5 +1,7 @@
 value PANIC is
     lambda msg.
+        -- PANIC is polymorphic, hence this coerce is necessary. PANIC never
+        -- returns, hence this coerce is safe.
         COERCE (
             -- FIXME: The return type here is wrong; it should be {} which is
             -- FIXME: marshaled to LLVM's void.

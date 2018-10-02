@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
+// See the corresponding macro in special.hpp for more information.
 #define GRA_POD_WRAPPER(name, pod)                                          \
     __attribute__((always_inline))                                          \
     gra::value* gra::construct ## name(heap& heap, pod unboxed) {           \

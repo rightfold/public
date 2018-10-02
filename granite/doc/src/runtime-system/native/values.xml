@@ -14,6 +14,26 @@
             is included in the value.
         </para>
     </section>
+    <section xml:id="granite-runtime-system-native-values-integers">
+        <title>Integers</title>
+        <para>
+            Integers use only
+            the auxiliary part of the value.
+            The auxiliary part has
+            the same number of bits
+            as the integer.
+        </para>
+    </section>
+    <section xml:id="granite-runtime-system-native-values-pointers">
+        <title>Pointers</title>
+        <para>
+            Pointers use only
+            the auxiliary part of the value.
+            The auxiliary part has
+            the same number of bits
+            as the pointer.
+        </para>
+    </section>
     <section xml:id="granite-runtime-system-native-values-lambdas">
         <title>Lambdas</title>
         <para>
@@ -22,6 +42,16 @@
             The auxiliary part of a lambda
             stores a function pointer
             to the implementation of the lambda.
+        </para>
+        <para>
+            The captures of a lambda
+            are the values of the variables
+            that are in scope
+            where the lambda is constructed.
+            The captures do not include
+            the parameter of the lambda;
+            they only include
+            the free variables of the lambda.
         </para>
         <para>
             The implementation of a lambda

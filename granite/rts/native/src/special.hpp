@@ -13,6 +13,9 @@
 
 namespace gra {
 
+    // Macro for declaring construct and read functions for values that wrap
+    // C++ POD values. They are copied into and out of the auxiliary part of
+    // the value using memcpy.
 #define GRA_POD_WRAPPER(name, pod)                                          \
     value* construct ## name(heap&, pod);                                   \
     pod read ## name(value*);
@@ -33,6 +36,7 @@ namespace gra {
     ////////////////////////////////////////////////////////////////////////////
     // Lambdas
 
+    // See the RTS documentation for the memory layout of lambdas.
     using lambdaCode = value*(heap&, value*, value*);
     value* constructLambda(heap&, lambdaCode*, value**, std::uint64_t);
     value* callLambda(heap&, value*, value*);
