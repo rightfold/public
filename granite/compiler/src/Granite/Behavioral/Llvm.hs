@@ -23,14 +23,14 @@ import Control.Lens ((^.), (<<%=), at, makeLenses, to, view)
 import Control.Monad.Error.Class (MonadError, throwError)
 import Control.Monad.Reader.Class (MonadReader)
 import Control.Monad.State.Class (MonadState)
-import Control.Monad.Trans.RWS (evalRWST)
+import Control.Monad.Trans.RWS (RWST, evalRWST)
 import Data.ByteString.Short (ShortByteString)
 import Data.Foldable (for_)
 import Data.HashMap.Strict (HashMap)
 import Data.List (genericLength)
 import Data.Traversable (for)
 import LLVM.AST (Operand)
-import LLVM.IRBuilder (MonadIRBuilder, MonadModuleBuilder)
+import LLVM.IRBuilder (IRBuilderT, MonadIRBuilder, MonadModuleBuilder)
 
 import qualified Data.ByteString.Char8 as BS.C8
 import qualified Data.ByteString.Short as BS.S
@@ -46,7 +46,7 @@ import Granite.Common.Name (Name)
 import Granite.Common.Position (Position)
 
 -- TODO: Move this to a module with orphan instances.
-instance MonadModuleBuilder m => MonadModuleBuilder (IRB.IRBuilderT m)
+instance MonadModuleBuilder m => MonadModuleBuilder (IRBuilderT m)
 
 --------------------------------------------------------------------------------
 -- Infrastructure
@@ -139,7 +139,7 @@ buildExpression (Expression position payload) = case payload of
     buildLambdaCall function' argument'
 
   LambdaExpression parameter body -> do
-    buildLambda parameter body
+    buildLambda parameter (buildExpression body)
 
   ForeignExpression source type_ ->
     -- TODO: Implement foreign expressions.
@@ -162,13 +162,15 @@ buildGlobalGet global = do
 -- |
 -- Continuation-passing style function for building a lambda. The continuation
 -- must build the lambda body.
-buildLambda :: ( MonadError Error m
-               , MonadReader Environment m
+buildLambda :: forall m
+             . ( MonadReader Environment m
                , MonadState State m
                , MonadIRBuilder m
                , MonadModuleBuilder m )
-            => Name -> Expression 0 -> m Operand
-buildLambda parameter body = do
+            => Name
+            -> RWST Environment () State (IRBuilderT m) Operand
+            -> m Operand
+buildLambda parameter bodyAction = do
   -- Retrieve used infrastructure.
   rts       <- view envRts
   variables <- view envVariables
@@ -182,16 +184,14 @@ buildLambda parameter body = do
   -- Construct lambda value.
   buildLambdaConstruction impl (snd <$> captures)
   where
-  irbFunctionCallback :: ( MonadError Error m, MonadIRBuilder m
-                         , MonadModuleBuilder m )
-                      => Rts -> HashMap Name Variable -> [(Name, Operand)]
-                      -> ShortByteString -> [Operand] -> m ()
+  irbFunctionCallback :: Rts -> HashMap Name Variable -> [(Name, Operand)]
+                      -> ShortByteString -> [Operand] -> IRBuilderT m ()
   irbFunctionCallback rts variables captures name [heap, self, argument] =
     let
       globals :: [(Name, Operand)]
       globals = [ (n, o) | (n, Global o) <- HashMap.toList variables ]
 
-      args :: BuildLambdaBodyArgs
+      args :: BuildLambdaBodyArgs (IRBuilderT m)
       args = BuildLambdaBodyArgs
         { -- Configuration
           blRts = rts
@@ -206,12 +206,12 @@ buildLambda parameter body = do
         , blGlobals   = globals
         , blCaptures  = fst <$> captures
         , blParameter = parameter
-        , blBody      = body
+        , blAction    = bodyAction
         }
     in
       buildLambdaBody args
 
-data BuildLambdaBodyArgs =
+data BuildLambdaBodyArgs m =
   BuildLambdaBodyArgs
     { -- Configuration
       blRts :: Rts
@@ -226,12 +226,12 @@ data BuildLambdaBodyArgs =
     , blGlobals   :: [(Name, Operand)]
     , blCaptures  :: [Name]
     , blParameter :: Name
-    , blBody      :: Expression 0 }
+    , blAction    :: RWST Environment () State m Operand }
 
 -- |
 -- Build the body of a lambda.
-buildLambdaBody :: (MonadError Error m, MonadIRBuilder m, MonadModuleBuilder m)
-                => BuildLambdaBodyArgs -> m ()
+buildLambdaBody :: (MonadIRBuilder m, MonadModuleBuilder m)
+                => BuildLambdaBodyArgs m -> m ()
 buildLambdaBody bl = do
   let globals = [ (n, Global o) | (n, o) <- blGlobals bl ]
   locals <- buildLambdaCapturesToLocals (blRts bl) (blCaptures bl) (blSelf bl)
@@ -244,7 +244,7 @@ buildLambdaBody bl = do
         , _envHeap             = blHeap bl
         , _envVariables        = variables }
 
-  let build = IRB.ret =<< buildExpression (blBody bl)
+  let build = IRB.ret =<< blAction bl
   ((), ()) <- evalRWST build env (State 0)
   pure ()
 
