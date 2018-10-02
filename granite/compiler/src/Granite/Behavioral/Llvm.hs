@@ -139,47 +139,7 @@ buildExpression (Expression position payload) = case payload of
     buildLambdaCall function' argument'
 
   LambdaExpression parameter body -> do
-    -- Retrieve used infrastructure.
-    rts       <- view envRts
-    variables <- view envVariables
-    captures  <- view (envVariables . to lambdaCaptures)
-
-    -- Define lambda implementation.
-    name <- freshLambdaName
-    impl <- IRB.function (IR.Name name) lambdaParams valueType
-                         (irbFunctionCallback rts variables captures name)
-
-    -- Construct lambda value.
-    buildLambdaConstruction impl (snd <$> captures)
-    where
-    irbFunctionCallback :: ( MonadError Error m, MonadIRBuilder m
-                           , MonadModuleBuilder m )
-                        => Rts -> HashMap Name Variable -> [(Name, Operand)]
-                        -> ShortByteString -> [Operand] -> m ()
-    irbFunctionCallback rts variables captures name [heap, self, argument] =
-      let
-        globals :: [(Name, Operand)]
-        globals = [ (n, o) | (n, Global o) <- HashMap.toList variables ]
-
-        args :: BuildLambdaBodyArgs
-        args = BuildLambdaBodyArgs
-          { -- Configuration
-            blRts = rts
-          , blLambdaNamePrefix = name
-
-            -- Lambda arguments
-          , blHeap     = heap
-          , blSelf     = self
-          , blArgument = argument
-
-            -- Code generation
-          , blGlobals   = globals
-          , blCaptures  = fst <$> captures
-          , blParameter = parameter
-          , blBody      = body
-          }
-      in
-        buildLambdaBody args
+    buildLambda parameter body
 
   ForeignExpression source type_ ->
     -- TODO: Implement foreign expressions.
@@ -198,6 +158,58 @@ buildGlobalGet global = do
 
 --------------------------------------------------------------------------------
 -- Lambdas
+
+-- |
+-- Continuation-passing style function for building a lambda. The continuation
+-- must build the lambda body.
+buildLambda :: ( MonadError Error m
+               , MonadReader Environment m
+               , MonadState State m
+               , MonadIRBuilder m
+               , MonadModuleBuilder m )
+            => Name -> Expression 0 -> m Operand
+buildLambda parameter body = do
+  -- Retrieve used infrastructure.
+  rts       <- view envRts
+  variables <- view envVariables
+  captures  <- view (envVariables . to lambdaCaptures)
+
+  -- Define lambda implementation.
+  name <- freshLambdaName
+  impl <- IRB.function (IR.Name name) lambdaParams valueType
+                       (irbFunctionCallback rts variables captures name)
+
+  -- Construct lambda value.
+  buildLambdaConstruction impl (snd <$> captures)
+  where
+  irbFunctionCallback :: ( MonadError Error m, MonadIRBuilder m
+                         , MonadModuleBuilder m )
+                      => Rts -> HashMap Name Variable -> [(Name, Operand)]
+                      -> ShortByteString -> [Operand] -> m ()
+  irbFunctionCallback rts variables captures name [heap, self, argument] =
+    let
+      globals :: [(Name, Operand)]
+      globals = [ (n, o) | (n, Global o) <- HashMap.toList variables ]
+
+      args :: BuildLambdaBodyArgs
+      args = BuildLambdaBodyArgs
+        { -- Configuration
+          blRts = rts
+        , blLambdaNamePrefix = name
+
+          -- Lambda arguments
+        , blHeap     = heap
+        , blSelf     = self
+        , blArgument = argument
+
+          -- Code generation
+        , blGlobals   = globals
+        , blCaptures  = fst <$> captures
+        , blParameter = parameter
+        , blBody      = body
+        }
+    in
+      buildLambdaBody args
 
 data BuildLambdaBodyArgs =
   BuildLambdaBodyArgs
