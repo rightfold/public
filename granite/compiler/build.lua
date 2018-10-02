@@ -162,6 +162,25 @@ haskell_module {
     name = "Granite.Behavioral.Llvm",
     imports = {
         "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Llvm.Infrastructure",
+        "Granite.Behavioral.Llvm.Lambda",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.Llvm.Infrastructure",
+    imports = {
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.Llvm.Lambda",
+    imports = {
+        "Granite.Behavioral.Llvm.Infrastructure",
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
@@ -251,6 +270,8 @@ haskell_module {
     imports = {
         "Granite.Behavioral.Abstract",
         "Granite.Behavioral.Llvm",
+        "Granite.Behavioral.Llvm.Infrastructure",
+        "Granite.Behavioral.Llvm.Lambda",
         "Granite.Common.Name",
         "Granite.Common.Position",
         "Granite.Organizational.Abstract",
@@ -288,6 +309,8 @@ haskell_module {
     imports = {
         "Granite.Behavioral.Abstract",
         "Granite.Behavioral.Llvm",
+        "Granite.Behavioral.Llvm.Infrastructure",
+        "Granite.Behavioral.Llvm.Lambda",
         "Granite.Behavioral.Type",
         "Granite.Behavioral.TypeCheck",
         "Granite.Behavioral.Unify",
