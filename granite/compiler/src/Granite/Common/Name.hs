@@ -1,6 +1,7 @@
 module Granite.Common.Name
   ( Name (..)
   , Infix (..)
+  , Prefix (..)
   ) where
 
 import Data.Hashable (Hashable)
@@ -15,6 +16,7 @@ import GHC.Generics (Generic)
 data Name
   = PlainName Text
   | InfixName Infix
+  | PrefixName Prefix
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)
 
@@ -26,5 +28,12 @@ data Infix :: * where
   InfixHyphenGreater :: Infix
   InfixPlus :: Infix
   InfixSolidus :: Infix
+  deriving stock (Eq, Ord, Generic, Show)
+  deriving anyclass (Hashable)
+
+-- |
+-- A prefix operator.
+data Prefix :: * where
+  PrefixAsterisk :: Prefix
   deriving stock (Eq, Ord, Generic, Show)
   deriving anyclass (Hashable)

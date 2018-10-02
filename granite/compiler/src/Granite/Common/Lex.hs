@@ -36,7 +36,7 @@ import Text.Parsec.Text (Parser)
 import qualified Text.Parsec as Parser
 import qualified Data.Text as Text
 
-import Granite.Common.Name (Infix (..), Name (..))
+import Granite.Common.Name (Infix (..), Name (..), Prefix (..))
 import Granite.Common.Position (Position (..))
 
 --------------------------------------------------------------------------------
@@ -63,12 +63,16 @@ identifierTail = identifierHead <|> Parser.oneOf (['0' .. '9'] ++ "'!?")
 -- |
 -- Keywords.
 data Keyword :: * where
+  K___builtinAuxiliary :: Keyword
+  K___builtinAuxiliarySize :: Keyword
+  K___builtinCoerce :: Keyword
   K_forall :: Keyword
   K_foreign :: Keyword
   K_infix :: Keyword
   K_is :: Keyword
   K_lambda :: Keyword
   K_of :: Keyword
+  K_prefix :: Keyword
   K_value :: Keyword
   deriving stock (Eq, Ord, Bounded, Enum, Show)
 
@@ -136,7 +140,7 @@ textLiteral = lexeme $ do
 -- |
 -- Lex a name.
 name :: Parser (Position, Name)
-name = plainName <|> infixName
+name = plainName <|> infixName <|> prefixName
   where
   plainName =
     fmap PlainName <$> identifier
@@ -153,6 +157,13 @@ name = plainName <|> infixName
                             , InfixSolidus <$ punctuation P_solidus
                             ]
     pure (position, InfixName infix_)
+
+  prefixName = do
+    position <- keyword K_prefix
+    prefix <- Parser.choice [ -- One character.
+                              PrefixAsterisk <$ punctuation P_asterisk
+                            ]
+    pure (position, PrefixName prefix)
 
 --------------------------------------------------------------------------------
 

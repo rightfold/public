@@ -17,29 +17,78 @@ module Granite.Behavioral.Llvm
   , valueType
   ) where
 
-import Control.Lens (at, view)
+import Control.Lens ((?~), at, view)
 import Control.Monad.Error.Class (MonadError, throwError)
 import Control.Monad.Reader.Class (MonadReader)
 import Control.Monad.State.Class (MonadState)
 import LLVM.AST (Operand)
 import LLVM.IRBuilder (MonadIRBuilder, MonadModuleBuilder)
 
-import qualified LLVM.AST.Constant as IR
+import qualified Control.Monad.Reader.Class as Reader
 import qualified LLVM.AST.Name as IR
-import qualified LLVM.AST.Operand as IR
 import qualified LLVM.AST.Type as IR
 import qualified LLVM.IRBuilder as IRB
 
 import Granite.Behavioral.Llvm.Infrastructure
 
-import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
+import Granite.Behavioral.Abstract (Builtin (..), Expression (..), ExpressionPayload (..))
+import Granite.Behavioral.Llvm.Foreign (buildForeign, buildUnmarshal)
 import Granite.Behavioral.Llvm.Lambda (buildLambda, buildLambdaCall)
+import Granite.Behavioral.Type (pattern PointerType, pattern U8Type, pattern U64Type, typeFromExpression)
 
 --------------------------------------------------------------------------------
 -- Building
 
 buildRts :: MonadModuleBuilder m => m Rts
 buildRts = do
+  valuePointers <-
+    IRB.extern
+      (IR.Name "_ZN3gra5value8pointersEv")
+      [valueType]
+      (IR.ptr valueType)
+
+  valueAuxiliarySize <-
+    IRB.extern
+      (IR.Name "_ZNK3gra5value13auxiliarySizeEv")
+      [valueType]
+      IR.i64
+
+  valueAuxiliary <-
+    IRB.extern
+      (IR.Name "_ZN3gra5value9auxiliaryEv")
+      [valueType]
+      (IR.ptr IR.i8)
+
+  constructU8 <-
+    IRB.extern
+      (IR.Name "_ZN3gra11constructU8ERNS_4heapEh")
+      [heapType, IR.i8]
+      valueType
+
+  constructU64 <-
+    IRB.extern
+      (IR.Name "_ZN3gra12constructU64ERNS_4heapEm")
+      [heapType, IR.i64]
+      valueType
+
+  readU64 <-
+    IRB.extern
+      (IR.Name "_ZN3gra7readU64EPNS_5valueE")
+      [valueType]
+      IR.i64
+
+  constructPointer <-
+    IRB.extern
+      (IR.Name "_ZN3gra16constructPointerERNS_4heapEPv")
+      [heapType, IR.ptr IR.i8]
+      valueType
+
+  readPointer <-
+    IRB.extern
+      (IR.Name "_ZN3gra11readPointerEPNS_5valueE")
+      [valueType]
+      (IR.ptr IR.i8)
+
   constructLambda <-
     IRB.extern
       (IR.Name "_ZN3gra15constructLambdaERNS_4heapEPFPNS_5valueES1_S3_S3_EPS3_m")
@@ -52,15 +101,19 @@ buildRts = do
       [heapType, valueType, valueType]
       valueType
 
-  valuePointers <-
-    IRB.extern
-      (IR.Name "_ZN3gra5value8pointersEv")
-      [valueType]
-      (IR.ptr valueType)
+  pure $ Rts { _rtsValuePointers      = valuePointers
+             , _rtsValueAuxiliarySize = valueAuxiliarySize
+             , _rtsValueAuxiliary     = valueAuxiliary
 
-  pure $ Rts { _rtsConstructLambda = constructLambda
-             , _rtsCallLambda      = callLambda
-             , _rtsValuePointers   = valuePointers }
+             , _rtsConstructU8        = constructU8
+             , _rtsConstructU64       = constructU64
+             , _rtsReadU64            = readU64
+
+             , _rtsConstructPointer   = constructPointer
+             , _rtsReadPointer        = readPointer
+
+             , _rtsConstructLambda    = constructLambda
+             , _rtsCallLambda         = callLambda }
 
 
 -- |
@@ -85,11 +138,27 @@ buildExpression (Expression position payload) = case payload of
     buildLambdaCall function' argument'
 
   LambdaExpression parameter body -> do
-    buildLambda parameter (buildExpression body)
+    buildLambda $ \argument ->
+      Reader.local (envVariables . at parameter ?~ Local argument) $
+        buildExpression body
+
+  BuiltinExpression BuiltinAuxiliary -> do
+    graValueAuxiliary <- view (envRts . rtsValueAuxiliary)
+    buildLambda $ \argument -> do
+      result <- IRB.call graValueAuxiliary [(argument, [])]
+      buildUnmarshal (PointerType U8Type) result
+
+  BuiltinExpression BuiltinAuxiliarySize -> do
+    graValueAuxiliarySize <- view (envRts . rtsValueAuxiliarySize)
+    buildLambda $ \argument -> do
+      result <- IRB.call graValueAuxiliarySize [(argument, [])]
+      buildUnmarshal U64Type result
+
+  BuiltinExpression BuiltinCoerce ->
+    buildLambda pure
 
   ForeignExpression source type_ ->
-    -- TODO: Implement foreign expressions.
-    pure (IR.ConstantOperand (IR.Null valueType))
+    buildForeign source (typeFromExpression type_)
 
 --------------------------------------------------------------------------------
 -- Globals

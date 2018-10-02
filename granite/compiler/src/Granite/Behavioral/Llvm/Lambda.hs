@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Granite.Behavioral.Llvm.Lambda
   ( buildLambda
   , buildLambdaCall
@@ -24,7 +26,8 @@ import Granite.Behavioral.Llvm.Infrastructure
 
 import Granite.Common.Name (Name)
 
--- TODO: Move this to a module with orphan instances.
+-- TODO: Move this to a module with orphan instances and remove the OPTIONS_GHC
+-- TODO: pragma from this module.
 instance MonadModuleBuilder m => MonadModuleBuilder (IRBuilderT m)
 
 -- |
@@ -35,10 +38,10 @@ buildLambda :: forall m
                , MonadState State m
                , MonadIRBuilder m
                , MonadModuleBuilder m )
-            => Name
-            -> RWST Environment () State (IRBuilderT m) Operand
+            => (Operand -> RWST Environment () State (IRBuilderT m) Operand)
+                            -- ^ Receives the argument, builds the body.
             -> m Operand
-buildLambda parameter bodyAction = do
+buildLambda bodyAction = do
   -- Retrieve used infrastructure.
   rts       <- view envRts
   variables <- view envVariables
@@ -54,6 +57,7 @@ buildLambda parameter bodyAction = do
   where
   irbFunctionCallback :: Rts -> HashMap Name Variable -> [(Name, Operand)]
                       -> ShortByteString -> [Operand] -> IRBuilderT m ()
+
   irbFunctionCallback rts variables captures name [heap, self, argument] =
     let
       globals :: [(Name, Operand)]
@@ -73,11 +77,13 @@ buildLambda parameter bodyAction = do
           -- Code generation
         , blGlobals   = globals
         , blCaptures  = fst <$> captures
-        , blParameter = parameter
-        , blAction    = bodyAction
+        , blAction    = bodyAction argument
         }
     in
       buildLambdaBody args
+
+  irbFunctionCallback _ _ _ _ _ =
+    error "irbFunctionCallback: invalid number of parameters"
 
 data BuildLambdaBodyArgs m =
   BuildLambdaBodyArgs
@@ -93,7 +99,6 @@ data BuildLambdaBodyArgs m =
       -- Code generation
     , blGlobals   :: [(Name, Operand)]
     , blCaptures  :: [Name]
-    , blParameter :: Name
     , blAction    :: RWST Environment () State m Operand }
 
 -- |
@@ -103,8 +108,7 @@ buildLambdaBody :: (MonadIRBuilder m, MonadModuleBuilder m)
 buildLambdaBody bl = do
   let globals = [ (n, Global o) | (n, o) <- blGlobals bl ]
   locals <- buildLambdaCapturesToLocals (blRts bl) (blCaptures bl) (blSelf bl)
-  let parameters = [(blParameter bl, Local (blArgument bl))]
-  let variables = HashMap.fromList (globals <> locals <> parameters)
+  let variables = HashMap.fromList (globals <> locals)
 
   let env = Environment
         { _envRts              = blRts bl

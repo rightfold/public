@@ -31,7 +31,7 @@ import qualified LLVM.AST.Type as IR
 import qualified LLVM.IRBuilder as IRB
 
 import Granite.Behavioral.Llvm (Error (..), Rts (..), buildExpression, heapType, valueType)
-import Granite.Common.Name (Infix (..), Name (..))
+import Granite.Common.Name (Infix (..), Name (..), Prefix (..))
 import Granite.Organizational.Abstract (Definition (..), DefinitionPayload (..))
 
 import qualified Granite.Behavioral.Llvm as Behavioral
@@ -71,12 +71,13 @@ buildImplementation' rts globals (Definition _ payload) = case payload of
     irbFunctionCallback :: ( MonadError Error m, MonadIRBuilder m
                            , MonadModuleBuilder m )
                         => ShortByteString -> [Operand] -> m ()
-    irbFunctionCallback name [heap] =
+
+    irbFunctionCallback name' [heap] =
       let
         env :: Behavioral.Environment
         env = Behavioral.Environment
           { Behavioral._envRts              = rts
-          , Behavioral._envLambdaNamePrefix = name
+          , Behavioral._envLambdaNamePrefix = name'
           , Behavioral._envHeap             = heap
           , Behavioral._envVariables        = Behavioral.Global <$> globals }
 
@@ -85,6 +86,9 @@ buildImplementation' rts globals (Definition _ payload) = case payload of
       in
         do { ((), ()) <- evalRWST (IRB.ret =<< buildExpression body) env state
            ; pure () }
+
+    irbFunctionCallback _ _ =
+      error "irbFunctionCallback: invalid number of parameters"
 
   ValueDefinition _ _ Nothing ->
     pure ()
@@ -115,3 +119,5 @@ mangleGraniteName (InfixName InfixAsterisk)      = "gra$infix*"
 mangleGraniteName (InfixName InfixHyphen)        = "gra$infix-"
 mangleGraniteName (InfixName InfixPlus)          = "gra$infix+"
 mangleGraniteName (InfixName InfixSolidus)       = "gra$infix/"
+
+mangleGraniteName (PrefixName PrefixAsterisk)    = "gra$prefix*"

@@ -51,14 +51,14 @@ translation_unit {
 }
 
 translation_unit {
-    name = "lambda",
-    source = "+granite/rts/native/src/lambda.cpp",
+    name = "special",
+    source = "+granite/rts/native/src/special.cpp",
     includes = {
         "+granite/rts/native/src/heap.hpp",
-        "+granite/rts/native/src/lambda.hpp",
+        "+granite/rts/native/src/special.hpp",
         "+granite/rts/native/src/value.hpp",
     },
-    output = "@lambda.bc",
+    output = "@special.bc",
 }
 
 translation_unit {

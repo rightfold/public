@@ -11,6 +11,9 @@ module Granite.Behavioral.Abstract
     -- * Expressions
   , Expression (..)
   , ExpressionPayload (..)
+
+    -- * Builtins
+  , Builtin (..)
   ) where
 
 import Data.Text (Text)
@@ -52,7 +55,16 @@ data ExpressionPayload :: Nat -> * where
   VariableExpression :: Name -> ExpressionPayload u
   ApplicationExpression :: Expression u -> Expression u -> ExpressionPayload u
   LambdaExpression :: Name -> Expression 0 -> ExpressionPayload 0
+  BuiltinExpression :: Builtin -> ExpressionPayload 0
   ForeignExpression :: Text -> Expression 1 -> ExpressionPayload 0
   ForallExpression :: Name -> Expression 1 -> ExpressionPayload 1
 deriving stock instance Eq (ExpressionPayload u)
 deriving stock instance Show (ExpressionPayload u)
+
+-- |
+-- A builtin.
+data Builtin :: * where
+  BuiltinAuxiliary :: Builtin
+  BuiltinAuxiliarySize :: Builtin
+  BuiltinCoerce :: Builtin
+  deriving stock (Eq, Show)

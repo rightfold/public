@@ -11,14 +11,18 @@ module Granite.Behavioral.Type
   , dissectFunctionType
 
     -- * Constants
+  , pattern U8Type
+  , pattern U64Type
+  , pattern F64Type
   , pattern FunctionType
+  , pattern PointerType
   ) where
 
 import Data.Hashable (Hashable)
 import GHC.Generics (Generic)
 
 import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
-import Granite.Common.Name (Infix (..), Name (..))
+import Granite.Common.Name (Infix (..), Name (..), Prefix (..))
 
 --------------------------------------------------------------------------------
 -- Types
@@ -84,6 +88,15 @@ dissectFunctionType t = ([], t)
 --------------------------------------------------------------------------------
 -- Constants
 
+pattern U8Type :: Type
+pattern U8Type = VariableType (PlainName "u8")
+
+pattern U64Type :: Type
+pattern U64Type = VariableType (PlainName "u64")
+
+pattern F64Type :: Type
+pattern F64Type = VariableType (PlainName "f64")
+
 pattern FunctionType :: Type -> Type -> Type
 pattern FunctionType t1 t2 =
   ApplicationType
@@ -91,3 +104,8 @@ pattern FunctionType t1 t2 =
       (VariableType (InfixName InfixHyphenGreater))
       t1)
     t2
+
+pattern PointerType :: Type -> Type
+pattern PointerType t =
+  ApplicationType (VariableType (PrefixName PrefixAsterisk))
+                  t

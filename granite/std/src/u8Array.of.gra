@@ -1,0 +1,2 @@
+value u8ArrayData of u8Array -> prefix* u8;
+value u8ArraySize of u8Array -> u64;

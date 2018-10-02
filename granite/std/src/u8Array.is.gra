@@ -1,0 +1,2 @@
+value u8ArrayData is __builtinAuxiliary;
+value u8ArraySize is __builtinAuxiliarySize;

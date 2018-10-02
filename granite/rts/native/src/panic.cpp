@@ -1,6 +1,7 @@
 #include "panic.hpp"
 
 #include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
 
 [[noreturn]] void gra::panic(unsigned char const* data, std::uint64_t size) {

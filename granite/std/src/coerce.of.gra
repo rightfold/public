@@ -1,0 +1,1 @@
+value COERCE of forall a. forall b. a -> b;

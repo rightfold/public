@@ -13,6 +13,7 @@ import qualified Data.ByteString.Char8 as BS.C8
 import qualified Data.ByteString.Short as BS.S
 import qualified LLVM.AST.Type as IR
 
+import Granite.Behavioral.Type (Type)
 import Granite.Common.Name (Name)
 import Granite.Common.Position (Position)
 
@@ -20,17 +21,28 @@ import Granite.Common.Position (Position)
 -- Error that occurs during building.
 data Error
   = UnknownName Position Name
+  | CannotMarshalType Type
   deriving stock (Eq, Show)
 
 data Variable
   = Local Operand
   | Global Operand
+  deriving stock (Show)
 
 data Rts =
   Rts
-    { _rtsConstructLambda :: Operand
-    , _rtsCallLambda      :: Operand
-    , _rtsValuePointers   :: Operand }
+    { _rtsValuePointers      :: Operand
+    , _rtsValueAuxiliarySize :: Operand
+    , _rtsValueAuxiliary     :: Operand
+
+    , _rtsConstructU8        :: Operand
+    , _rtsConstructU64       :: Operand
+    , _rtsConstructPointer   :: Operand
+    , _rtsReadU64            :: Operand
+    , _rtsReadPointer        :: Operand
+
+    , _rtsConstructLambda    :: Operand
+    , _rtsCallLambda         :: Operand }
 $(makeLenses ''Rts)
 
 data Environment =

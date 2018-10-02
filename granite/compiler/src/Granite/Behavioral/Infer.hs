@@ -30,9 +30,9 @@ import Data.HashMap.Strict (HashMap)
 import qualified Control.Monad.Reader.Class as Reader
 import qualified Data.HashMap.Strict as HashMap
 
-import Granite.Behavioral.Abstract (Expression (..), ExpressionPayload (..))
+import Granite.Behavioral.Abstract (Builtin (..), Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
-import Granite.Behavioral.Type (pattern FunctionType, Skolem (..), Type (..), Unknown (..), typeFromExpression)
+import Granite.Behavioral.Type (pattern FunctionType, pattern PointerType, pattern U8Type, pattern U64Type, Skolem (..), Type (..), Unknown (..), typeFromExpression)
 import Granite.Common.Name (Name (..))
 import Granite.Common.Position (Position)
 
@@ -112,6 +112,18 @@ infer (Expression position payload) = case payload of
     let localize = envVariables . at parameter ?~ parameterType
     returnType <- Reader.local localize $ infer body
     pure $ FunctionType parameterType returnType
+
+  BuiltinExpression BuiltinAuxiliary ->
+    FunctionType <$> (UnknownType <$> freshUnknown Nothing)
+                 <*> pure (PointerType U8Type)
+
+  BuiltinExpression BuiltinAuxiliarySize ->
+    FunctionType <$> (UnknownType <$> freshUnknown Nothing)
+                 <*> pure U64Type
+
+  BuiltinExpression BuiltinCoerce ->
+    FunctionType <$> (UnknownType <$> freshUnknown Nothing)
+                 <*> (UnknownType <$> freshUnknown Nothing)
 
   ForeignExpression _ type_ -> do
     instantiate (typeFromExpression type_)

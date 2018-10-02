@@ -9,9 +9,11 @@ namespace gra {
     public:
         virtual ~heap();
 
-        virtual value* allocate(
+        value* allocate(
             std::uint64_t pointerCount,
             std::uint64_t auxiliarySize
-        ) = 0;
+        );
+
+        virtual void* allocate(std::uint64_t size) = 0;
     };
 }

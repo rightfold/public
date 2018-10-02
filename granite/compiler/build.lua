@@ -78,6 +78,7 @@ local function haskell_module(rule)
     table.insert(args, [[-XStandaloneDeriving]])
     table.insert(args, [[-XStrictData]])
     table.insert(args, [[-XTupleSections]])
+    table.insert(args, [[-XTypeApplications]])
     table.insert(args, [[-XTypeOperators]])
 
     table.insert(args, [[-Wall]])
@@ -162,8 +163,21 @@ haskell_module {
     name = "Granite.Behavioral.Llvm",
     imports = {
         "Granite.Behavioral.Abstract",
+        "Granite.Behavioral.Llvm.Foreign",
         "Granite.Behavioral.Llvm.Infrastructure",
         "Granite.Behavioral.Llvm.Lambda",
+        "Granite.Behavioral.Type",
+        "Granite.Common.Name",
+        "Granite.Common.Position",
+    },
+}
+
+haskell_module {
+    name = "Granite.Behavioral.Llvm.Foreign",
+    imports = {
+        "Granite.Behavioral.Llvm.Infrastructure",
+        "Granite.Behavioral.Llvm.Lambda",
+        "Granite.Behavioral.Type",
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
@@ -172,6 +186,7 @@ haskell_module {
 haskell_module {
     name = "Granite.Behavioral.Llvm.Infrastructure",
     imports = {
+        "Granite.Behavioral.Type",
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
@@ -181,6 +196,7 @@ haskell_module {
     name = "Granite.Behavioral.Llvm.Lambda",
     imports = {
         "Granite.Behavioral.Llvm.Infrastructure",
+        "Granite.Behavioral.Type",
         "Granite.Common.Name",
         "Granite.Common.Position",
     },
