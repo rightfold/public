@@ -73,7 +73,10 @@ expression3 = \n -> case n of
       Parser.choice
         [ (, BuiltinAuxiliary    ) <$> Lex.keyword Lex.K___builtinAuxiliary
         , (, BuiltinAuxiliarySize) <$> Lex.keyword Lex.K___builtinAuxiliarySize
-        , (, BuiltinCoerce       ) <$> Lex.keyword Lex.K___builtinCoerce ]
+        , (, BuiltinCoerce       ) <$> Lex.keyword Lex.K___builtinCoerce
+        , (, BuiltinEffJoin      ) <$> Lex.keyword Lex.K___builtinEffJoin
+        , (, BuiltinEffMap       ) <$> Lex.keyword Lex.K___builtinEffMap
+        , (, BuiltinEffPure      ) <$> Lex.keyword Lex.K___builtinEffPure ]
     pure $ Expression position (BuiltinExpression builtin)
 
   foreignExpression :: Parser (Expression 0)

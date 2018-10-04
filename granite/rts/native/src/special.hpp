@@ -41,6 +41,14 @@ namespace gra {
     value* constructLambda(heap&, lambdaCode*, value**, std::uint64_t);
     value* callLambda(heap&, value*, value*);
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Effs
+
+    // See the RTS documentation for the memory layout of effs.
+    using effCode = value*(heap&, value*);
+    value* constructEff(heap&, effCode*, value**, std::uint64_t);
+    value* performEff(heap&, value*);
+
 #undef GRA_POD_WRAPPER
 
 }

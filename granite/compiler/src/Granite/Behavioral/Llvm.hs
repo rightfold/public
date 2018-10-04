@@ -157,6 +157,15 @@ buildExpression (Expression position payload) = case payload of
   BuiltinExpression BuiltinCoerce ->
     buildLambda pure
 
+  BuiltinExpression BuiltinEffJoin ->
+    _
+
+  BuiltinExpression BuiltinEffMap ->
+    _
+
+  BuiltinExpression BuiltinEffPure ->
+    _
+
   ForeignExpression source type_ ->
     buildForeign source (typeFromExpression type_)
 

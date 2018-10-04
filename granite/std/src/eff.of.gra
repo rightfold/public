@@ -1,0 +1,4 @@
+value map  of forall e. forall a. forall b. (a -> b) -> eff e a -> eff e b;
+value pure of forall e. forall a. a -> eff e a;
+value join of forall e. forall a. eff e (eff e a) -> eff e a;
+value bind of forall e. forall a. forall b. eff e a -> (a -> eff e b) -> eff e b;

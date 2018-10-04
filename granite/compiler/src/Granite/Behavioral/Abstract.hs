@@ -67,4 +67,7 @@ data Builtin :: * where
   BuiltinAuxiliary :: Builtin
   BuiltinAuxiliarySize :: Builtin
   BuiltinCoerce :: Builtin
+  BuiltinEffJoin :: Builtin
+  BuiltinEffMap :: Builtin
+  BuiltinEffPure :: Builtin
   deriving stock (Eq, Show)

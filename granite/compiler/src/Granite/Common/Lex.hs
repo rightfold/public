@@ -66,6 +66,9 @@ data Keyword :: * where
   K___builtinAuxiliary :: Keyword
   K___builtinAuxiliarySize :: Keyword
   K___builtinCoerce :: Keyword
+  K___builtinEffJoin :: Keyword
+  K___builtinEffMap :: Keyword
+  K___builtinEffPure :: Keyword
   K_forall :: Keyword
   K_foreign :: Keyword
   K_infix :: Keyword

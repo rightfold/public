@@ -15,6 +15,7 @@ module Granite.Behavioral.Type
   , pattern U64Type
   , pattern F64Type
   , pattern FunctionType
+  , pattern EffType
   , pattern PointerType
   ) where
 
@@ -102,6 +103,14 @@ pattern FunctionType t1 t2 =
   ApplicationType
     (ApplicationType
       (VariableType (InfixName InfixHyphenGreater))
+      t1)
+    t2
+
+pattern EffType :: Type -> Type -> Type
+pattern EffType t1 t2 =
+  ApplicationType
+    (ApplicationType
+      (VariableType (PlainName "eff"))
       t1)
     t2
 

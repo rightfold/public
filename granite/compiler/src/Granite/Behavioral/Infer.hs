@@ -32,7 +32,7 @@ import qualified Data.HashMap.Strict as HashMap
 
 import Granite.Behavioral.Abstract (Builtin (..), Expression (..), ExpressionPayload (..))
 import Granite.Behavioral.Constraint (ConstraintSet)
-import Granite.Behavioral.Type (pattern FunctionType, pattern PointerType, pattern U8Type, pattern U64Type, Skolem (..), Type (..), Unknown (..), typeFromExpression)
+import Granite.Behavioral.Type (pattern EffType, pattern FunctionType, pattern PointerType, pattern U8Type, pattern U64Type, Skolem (..), Type (..), Unknown (..), typeFromExpression)
 import Granite.Common.Name (Name (..))
 import Granite.Common.Position (Position)
 
@@ -124,6 +124,25 @@ infer (Expression position payload) = case payload of
   BuiltinExpression BuiltinCoerce ->
     FunctionType <$> (UnknownType <$> freshUnknown Nothing)
                  <*> (UnknownType <$> freshUnknown Nothing)
+
+  BuiltinExpression BuiltinEffJoin -> do
+    e <- UnknownType <$> freshUnknown Nothing
+    a <- UnknownType <$> freshUnknown Nothing
+    pure $ FunctionType (EffType e (EffType e a))
+                        (EffType e a)
+
+  BuiltinExpression BuiltinEffMap -> do
+    e <- UnknownType <$> freshUnknown Nothing
+    a <- UnknownType <$> freshUnknown Nothing
+    b <- UnknownType <$> freshUnknown Nothing
+    pure $ FunctionType (FunctionType a b)
+                        (FunctionType (EffType e a)
+                                      (EffType e b))
+
+  BuiltinExpression BuiltinEffPure -> do
+    e <- UnknownType <$> freshUnknown Nothing
+    a <- UnknownType <$> freshUnknown Nothing
+    pure $ FunctionType a (EffType e a)
 
   ForeignExpression _ type_ -> do
     instantiate (typeFromExpression type_)

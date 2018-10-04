@@ -55,4 +55,27 @@ gra::value* gra::callLambda(heap& heap, value* lambda, value* argument) {
     return code(heap, lambda, argument);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Effs
+
+__attribute__((always_inline))
+gra::value* gra::constructEff(
+    heap& heap,
+    effCode* code,
+    value** captures,
+    std::uint64_t captureCount
+) {
+    auto eff = heap.allocate(captureCount, sizeof(code));
+    std::copy(captures, captures + captureCount, eff->pointers());
+    std::memcpy(eff->auxiliary(), &code, sizeof(code));
+    return eff;
+}
+
+__attribute__((always_inline))
+gra::value* gra::performEff(heap& heap, value* eff) {
+    effCode* code;
+    std::memcpy(&code, eff->auxiliary(), sizeof(code));
+    return code(heap, eff);
+}
+
 #undef GRA_POD_WRAPPER

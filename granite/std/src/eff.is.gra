@@ -1,0 +1,4 @@
+value map  is __builtinEffMap;
+value pure is __builtinEffPure;
+value join is __builtinEffJoin;
+value bind is lambda eff. lambda k. join (map k eff);
